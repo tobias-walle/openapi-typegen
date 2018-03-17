@@ -1,0 +1,10 @@
+{
+  "name": "swagger-typegen",
+  "version": "0.0.0",
+  "description": "Generate typescript from swagger files",
+  "main": "index.js",
+  "repository": "git@github.com:TobiasWalle/swagger-typegen.git",
+  "author": "Tobias Walle",
+  "license": "MIT",
+  "private": false
+}
