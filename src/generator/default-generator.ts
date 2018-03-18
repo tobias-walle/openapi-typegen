@@ -52,7 +52,7 @@ function addInterface(sourceFile: SourceFile, plan: InterfacePlan, name: string)
 function addArrayTypeAlias(sourceFile: SourceFile, plan: ArrayPlan, name: string): void {
   sourceFile.addTypeAlias({
     name,
-    type: `${getTypeAsString(plan.itemType)}[]`,
+    type: `${getTypeAsString(plan.itemType, sourceFile)}[]`,
     isExported: true,
   });
 }
