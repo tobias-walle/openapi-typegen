@@ -8,13 +8,18 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "start": "ts-node src/index.ts",
     "test": "jest"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.1",
     "@types/jest": "^22.2.0",
     "@types/node": "^9.4.7",
     "jest": "^22.4.2",
+    "open-api.d.ts": "^3.0.1",
     "ts-jest": "^22.4.1",
+    "ts-node": "^5.0.1",
+    "tslint": "^5.9.1",
     "typescript": "^2.8.0-rc"
   },
   "jest": {
@@ -30,5 +35,8 @@
       "json",
       "node"
     ]
+  },
+  "dependencies": {
+    "ts-simple-ast": "^9.3.0"
   }
 }

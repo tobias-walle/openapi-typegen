@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`resolveRef should throw an error if reference is invalid 1`] = `"Couldn't find ref \\"#/definitions/[Test]\\""`;
+
+exports[`resolveRef should throw an error on reference in another file 1`] = `"Ref \\"otherFile/#/definitions/Test\\" not supported"`;
