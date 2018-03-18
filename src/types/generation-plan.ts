@@ -1,4 +1,3 @@
-
 export enum PlanType {
   INTERFACE,
   ARRAY,

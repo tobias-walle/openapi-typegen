@@ -1,12 +1,11 @@
-import { isReference, resolveRef, resolveReferenceIfNecessary } from './utils';
 import { IOpenApiObject, IReferenceObject } from 'open-api.d.ts';
+import { isReference, resolveRef, resolveReferenceIfNecessary } from './reference-utils';
 
 describe('isReference', () => {
   it('should check if an object is an reference', () => {
     expect(isReference({ $ref: '#/test' })).toBe(true);
     expect(isReference({ notRef: '#/test' })).toBe(false);
   });
-
 });
 
 describe('resolveRef', () => {

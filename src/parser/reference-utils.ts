@@ -26,10 +26,3 @@ export function resolveReferenceIfNecessary<T>(schema: IOpenApiObject, item: T |
   }
   return item;
 }
-
-export function flatten<T>(array: T[], otherArray: T[]): T[] {
-  return [
-    ...array,
-    ...otherArray,
-  ];
-}

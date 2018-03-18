@@ -1,10 +1,11 @@
 import { IOpenApiObject, IOperationObject, IParameterObject, IPathsObject } from 'open-api.d.ts';
-import { InnerGenerateTypescriptOptions } from './types/generate-typescript-options';
-import { GenerationPlan, PlanType } from './types/generation-plan';
-import { SchemaObject } from './types/schema-object';
-import { ArrayType } from './types/ts-extention';
-import { schemaObjectToTypePlan } from './utils/schema-object-to-type-plan';
-import { resolveReferenceIfNecessary } from './utils/utils';
+import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
+import { GenerationPlan, PlanType } from '../types/generation-plan';
+import { SchemaObject } from '../types/schema-object';
+import { ArrayType } from '../types/ts-extentions';
+import { getTypePlanFromSchemaObject } from './get-type-plan-from-schema-object';
+import { Parser } from './parser';
+import { resolveReferenceIfNecessary } from './reference-utils';
 
 const operations = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 type Operation = ArrayType<typeof operations>;
@@ -14,18 +15,18 @@ export interface ParserArguments {
   options: InnerGenerateTypescriptOptions;
 }
 
-export class DefaultParser {
+export class DefaultParser implements Parser {
   constructor(private readonly args: ParserArguments) {
   }
 
   public parse(): GenerationPlan {
-    const { options, schema } = this.args;
+    const { schema } = this.args;
 
     const declarations: GenerationPlan['declarations'] = {};
     const definitions: Record<string, SchemaObject> = schema.definitions;
     if (definitions) {
       Object.entries(definitions).forEach(([name, schemaObject]) => {
-        const typePlan = schemaObjectToTypePlan(schemaObject);
+        const typePlan = getTypePlanFromSchemaObject(schemaObject);
         if (typePlan.type === PlanType.INTERFACE || typePlan.type === PlanType.ARRAY) {
           declarations[name] = typePlan;
         }

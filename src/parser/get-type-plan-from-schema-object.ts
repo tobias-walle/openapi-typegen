@@ -1,7 +1,7 @@
 import { IReferenceObject } from 'open-api.d.ts';
 import { PlanType, PropertyPlan, TypePlan } from '../types/generation-plan';
 import { JsonSchemaType, ObjectSchemaProperties, SchemaObject } from '../types/schema-object';
-import { isReference } from './utils';
+import { isReference } from './reference-utils';
 
 const jsonSchemaTypeToTypescriptTypeName: Record<JsonSchemaType, string> = {
   string: 'string',
@@ -12,7 +12,7 @@ const jsonSchemaTypeToTypescriptTypeName: Record<JsonSchemaType, string> = {
   array: 'any[]',
 };
 
-export function schemaObjectToTypePlan(schemaObject: SchemaObject | IReferenceObject): TypePlan {
+export function getTypePlanFromSchemaObject(schemaObject: SchemaObject | IReferenceObject): TypePlan {
   if (isReference(schemaObject)) {
     return {
       type: PlanType.REFERENCE,
@@ -31,25 +31,25 @@ export function schemaObjectToTypePlan(schemaObject: SchemaObject | IReferenceOb
     case JsonSchemaType.ARRAY:
       return {
         type: PlanType.ARRAY,
-        itemType: schemaObjectToTypePlan(schemaObject.items),
+        itemType: getTypePlanFromSchemaObject(schemaObject.items),
       };
     case JsonSchemaType.OBJECT:
     default:
       return {
         type: PlanType.INTERFACE,
-        properties: objectSchemaPropertiesToPropertyPlans(schemaObject.properties, schemaObject.required),
+        properties: getPropertyPlansFromObjectSchemaProperties(schemaObject.properties, schemaObject.required),
       };
   }
 }
 
-function objectSchemaPropertiesToPropertyPlans(
+function getPropertyPlansFromObjectSchemaProperties(
   properties: ObjectSchemaProperties | undefined,
   requiredProperties: string[] = [],
 ): PropertyPlan[] {
   return properties
     ? Object.entries(properties).map(([propertyName, property]) => ({
       name: propertyName,
-      type: schemaObjectToTypePlan(property),
+      type: getTypePlanFromSchemaObject(property),
       optional: !requiredProperties.includes(propertyName),
     }))
     : [];

@@ -1,8 +1,8 @@
 import { IOpenApiObject } from 'open-api.d.ts';
 import Project from 'ts-simple-ast';
 import { DefaultFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
-import { DefaultGenerator, GeneratorArguments } from './default-generator';
-import { DefaultParser, ParserArguments } from './default-parser';
+import { DefaultGenerator, GeneratorArguments } from './generator/default-generator';
+import { DefaultParser, ParserArguments } from './parser/default-parser';
 import { GenerateTypescriptOptions, InnerGenerateTypescriptOptions } from './types/generate-typescript-options';
 
 const defaultOptions = {

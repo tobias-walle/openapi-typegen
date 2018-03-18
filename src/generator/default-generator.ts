@@ -1,7 +1,9 @@
 import * as path from 'path';
-import Project, { Block, InterfaceDeclaration, SourceFile, SyntaxKind } from 'ts-simple-ast';
-import { InnerGenerateTypescriptOptions } from './types/generate-typescript-options';
-import { ArrayPlan, GenerationPlan, InterfacePlan, PlanType, PropertyPlan, TypePlan } from './types/generation-plan';
+import Project, { SourceFile } from 'ts-simple-ast';
+import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
+import { ArrayPlan, GenerationPlan, InterfacePlan, PlanType, PropertyPlan } from '../types/generation-plan';
+import { Generator } from './generator';
+import { getTypeAsString } from './get-type-as-string';
 
 export interface GeneratorArguments {
   project: Project;
@@ -13,7 +15,7 @@ function createFilePath(relativePath: string, options: InnerGenerateTypescriptOp
   return path.join(options.outputPath, relativePath);
 }
 
-export class DefaultGenerator {
+export class DefaultGenerator implements Generator {
   constructor(private readonly args: GeneratorArguments) {
   }
 
@@ -53,24 +55,4 @@ function addArrayTypeAlias(sourceFile: SourceFile, plan: ArrayPlan, name: string
     type: `${getTypeAsString(plan.itemType)}[]`,
     isExported: true,
   });
-}
-
-function getTypeAsString(typePlan: TypePlan): string {
-  switch (typePlan.type) {
-    case PlanType.ARRAY:
-      return `${getTypeAsString(typePlan)}[]`;
-    case PlanType.INTERFACE:
-      const interfaceDeclaration = new InterfaceDeclaration();
-      typePlan.properties.forEach((propPlan: PropertyPlan) => {
-        interfaceDeclaration.addProperty({
-          name: propPlan.name,
-          type: getTypeAsString(propPlan.type),
-          hasQuestionToken: propPlan.optional,
-        });
-      });
-      const block: Block = interfaceDeclaration.getChildAtIndexIfKind(0, SyntaxKind.Block)!!;
-      return block.getText();
-    case PlanType.REFERENCE:
-      return typePlan.to;
-  }
 }
