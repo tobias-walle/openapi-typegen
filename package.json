@@ -9,7 +9,8 @@
   "private": false,
   "scripts": {
     "start": "ts-node src/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "lint": "tslint -p tsconfig.json"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.1",
@@ -38,5 +39,8 @@
   },
   "dependencies": {
     "ts-simple-ast": "^9.3.0"
+  },
+  "peerDependencies": {
+    "axios": "^0.18.0"
   }
 }

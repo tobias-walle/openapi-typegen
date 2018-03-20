@@ -19,7 +19,10 @@ describe('generateTypescript', () => {
 
   it('should generate the types of the definitions', () => {
     generateTypescript(petStoreSchema, { outputPath: '.', fileSystemHost: virtualFileSystem });
-    const expectedDeclarations = fs.readFileSync(path.join(exampleDirectory, 'pet-store', 'definitions.ts'), 'utf-8');
+    const expectedDeclarations = fs.readFileSync(
+      path.join(exampleDirectory, 'pet-store', 'generated', 'definitions.ts'),
+      'utf-8',
+    );
 
     expect(virtualFileSystem.readFileSync('definitions.ts')).toBe(expectedDeclarations);
   });

@@ -14,7 +14,8 @@
       "jest",
       "node"
     ],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noUnusedLocals": true
   },
   "files": [
     "src/index.ts"
