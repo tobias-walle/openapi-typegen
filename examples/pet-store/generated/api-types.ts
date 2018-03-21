@@ -7,11 +7,6 @@ export enum ParameterTypes {
     PATH = 'path',
 }
 
-export interface AbstractApiTypes {
-    parameters: { [type in ParameterTypes]?: object };
-    responses: { [statusCode: number]: any };
-}
-
 export type ApiOperationIds = keyof ApiTypes;
 
 export interface ApiTypes {

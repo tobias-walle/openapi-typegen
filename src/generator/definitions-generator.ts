@@ -1,31 +1,19 @@
-import * as path from 'path';
-import Project, { SourceFile } from 'ts-simple-ast';
-import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
-import { ArrayPlan, GenerationPlan, InterfacePlan, PlanType, PropertyPlan } from '../types/generation-plan';
+import { SourceFile } from 'ts-simple-ast';
+import { ArrayPlan, InterfacePlan, PlanType, PropertyPlan } from '../types/generation-plan';
 import { Generator } from './generator';
+import { GeneratorArguments } from './generator-arguments';
 import { getTypeAsString } from './get-type-as-string';
 
-export interface GeneratorArguments {
-  project: Project;
-  generationPlan: GenerationPlan;
-  options: InnerGenerateTypescriptOptions;
-}
-
-function createFilePath(relativePath: string, options: InnerGenerateTypescriptOptions): string {
-  return path.join(options.outputPath, relativePath);
-}
-
-export class DefaultGenerator implements Generator {
-  constructor(private readonly args: GeneratorArguments) {
+export class DefinitionsGenerator extends Generator {
+  constructor(args: GeneratorArguments) {
+    super(args);
   }
 
   public generate() {
-    const { project, generationPlan, options } = this.args;
+    const { generationPlan } = this.args;
 
-    if (options.fileSystemHost.fileExistsSync('definitions.ts')) {
-      options.fileSystemHost.deleteSync('definitions.ts');
-    }
-    const sourceFile = project.createSourceFile(createFilePath('definitions.ts', options));
+    const sourceFile = this.setupFile('definitions.ts');
+
     Object.entries(generationPlan.declarations)
       .forEach(([name, plan]) => plan.type === PlanType.INTERFACE
         ? addInterface(sourceFile, plan, name)

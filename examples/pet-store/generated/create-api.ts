@@ -1,13 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { apiMapping, ApiMapping, ApiMappingItem } from './api-mapping';
-import { ApiOperationIds, ApiTypes, ParameterTypes } from './api-types';
+import { apiMapping, ApiMappingItem } from './api-mapping';
+import { ApiOperationIds, ApiTypes } from './api-types';
 import { applyParametersToAxiosRequestConfig } from './api-utils';
 
 export type ApiParameters<K extends ApiOperationIds> = ApiTypes[K]['parameters'];
-
-export type AbstractApiFetchParameters = {
-    [key in ParameterTypes]?: object;
-};
 
 export type ApiFetchParameters<K extends ApiOperationIds> = {
     [parameterType in keyof ApiParameters<K>]: ApiParameters<K>[parameterType]
