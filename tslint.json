@@ -8,7 +8,8 @@
         "arrow-parens": false,
         "interface-name": false,
         "object-literal-sort-keys": false,
-        "array-type": false
+        "array-type": false,
+        "trailing-comma": false
     },
     "rulesDirectory": []
 }

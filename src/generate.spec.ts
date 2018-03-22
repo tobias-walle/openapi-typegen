@@ -12,13 +12,16 @@ describe('generateTypescript', () => {
     generateTypescript(petStoreSchema, { outputPath: '.', fileSystemHost: virtualFileSystem });
   });
 
-
   it('should generate the types of the definitions', () => {
     expectFileToMatchExample('definitions.ts');
   });
 
   it('should generate the api types', () => {
     expectFileToMatchExample('api-types.ts');
+  });
+
+  it('should generate the api mapping', () => {
+    expectFileToMatchExample('api-mapping.ts');
   });
 
   function expectFileToMatchExample(relativePath: string): void {
