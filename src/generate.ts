@@ -3,6 +3,7 @@ import Project, { IndentationText, QuoteType } from 'ts-simple-ast';
 import { DefaultFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
 import { ApiMappingGenerator } from './generator/api-mapping-generator';
 import { ApiTypesGenerator } from './generator/api-types-generator';
+import { AxiosGenerator } from './generator/axios-generator';
 import { DefinitionsGenerator } from './generator/definitions-generator';
 import { GeneratorArguments } from './generator/generator-arguments';
 import { DefaultParser, ParserArguments } from './parser/default-parser';
@@ -13,7 +14,7 @@ const defaultOptions: InnerGenerateTypescriptOptions = {
   fileSystemHost: new DefaultFileSystemHost(),
 };
 
-export function generateTypescript(schema: IOpenApiObject, customOptions: GenerateTypescriptOptions): void {
+export function generateTypescript(schema: IOpenApiObject, customOptions: GenerateTypescriptOptions): Promise<void> {
   const options: InnerGenerateTypescriptOptions = {
     ...defaultOptions,
     ...customOptions,
@@ -39,6 +40,7 @@ export function generateTypescript(schema: IOpenApiObject, customOptions: Genera
   new DefinitionsGenerator(generateArgs).generate();
   new ApiTypesGenerator(generateArgs).generate();
   new ApiMappingGenerator(generateArgs).generate();
+  new AxiosGenerator(generateArgs).generate();
 
   project.getSourceFiles()
     .map((file) => file.formatText({

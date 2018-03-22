@@ -24,6 +24,12 @@ describe('generateTypescript', () => {
     expectFileToMatchExample('api-mapping.ts');
   });
 
+  it('should generate the axios api', () => {
+    expectFileToMatchExample('api-utils.ts');
+    expectFileToMatchExample('create-api.ts');
+  });
+
+
   function expectFileToMatchExample(relativePath: string): void {
     expect(virtualFileSystem.readFileSync(relativePath)).toBe(readGeneratedFile(relativePath));
   }
@@ -41,4 +47,3 @@ function readGeneratedFile(relativePath: string): string {
     'utf-8',
   );
 }
-

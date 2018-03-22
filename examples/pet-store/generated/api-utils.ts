@@ -32,7 +32,9 @@ function mapObjectToFromData(object: Record<string, any>): FormData {
     }, new FormData());
 }
 
-export type AbstractApiFetchParameters = { [parameterType in ParameterType]?: any };
+export type AbstractApiFetchParameters = {
+  [parameterType in ParameterType]?: any
+};
 
 export function applyParametersToAxiosRequestConfig(
   config: AxiosRequestConfig,
