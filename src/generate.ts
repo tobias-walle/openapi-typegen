@@ -14,7 +14,7 @@ const defaultOptions: InnerGenerateTypescriptOptions = {
   fileSystemHost: new DefaultFileSystemHost(),
 };
 
-export function generateTypescript(schema: IOpenApiObject, customOptions: GenerateTypescriptOptions): Promise<void> {
+export function generateTypescript(schema: IOpenApiObject, customOptions: GenerateTypescriptOptions): void {
   const options: InnerGenerateTypescriptOptions = {
     ...defaultOptions,
     ...customOptions,

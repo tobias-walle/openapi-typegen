@@ -13,7 +13,9 @@ import { Generator } from './generator';
 import { getTypeAsString } from './get-type-as-string';
 import { createUnionTypePlanFromStrings, formDataTypePlan } from './type-plan-utils';
 
-const initialSourceCode = `
+const template = `
+{{imports}}
+
 export enum ParameterType {
     BODY = 'body',
     QUERY = 'query',
@@ -32,41 +34,19 @@ const neverPlan: ReferencePlan = {
 
 export class ApiTypesGenerator extends Generator {
   public generate() {
+    const imports = this.createImports();
+    const initialSourceCode = template.replace('{{imports}}', imports);
     const sourceFile = this.setupFile('api-types.ts', initialSourceCode);
-    this.addImports(sourceFile);
     this.addApiTypesInterface(sourceFile);
   }
 
-  private addImports(sourceFile: SourceFile): void {
+  private createImports(): string {
     const definitionImports: string[] = this.getDefinitionReferenceNames();
-    sourceFile.addImportDeclaration({
-      namedImports: definitionImports,
-      moduleSpecifier: './definitions',
-    });
+    return `import { ${definitionImports.join(',\n')} } from './definitions'`;
   }
 
   private getDefinitionReferenceNames(): string[] {
-    const result: Set<string> = new Set<string>();
-    Object.values(this.args.generationPlan.api)
-      .forEach((apiPlan) => {
-        apiPlan.parameters.forEach((parameter) => {
-          parameter.items.forEach((item) => {
-            if (item.payloadType && item.payloadType.type === PlanType.REFERENCE && !item.payloadType.libType) {
-              result.add(item.payloadType.to);
-            }
-          });
-        });
-        apiPlan.responses.forEach((response) => {
-          if (
-            response.payloadType
-            && response.payloadType.type === PlanType.REFERENCE
-            && !response.payloadType.libType
-          ) {
-            result.add(response.payloadType.to);
-          }
-        });
-      });
-    return Array.from(result).sort();
+    return Object.keys(this.args.generationPlan.declarations).sort();
   }
 
   private addApiTypesInterface(sourceFile: SourceFile): void {
