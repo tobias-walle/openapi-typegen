@@ -18,6 +18,7 @@ describe('getTypeAsString', () => {
     const stringPlan: ReferencePlan = {
       type: PlanType.REFERENCE,
       to: 'string',
+      libType: true,
     };
     const arrayPlan: ArrayPlan = {
       type: PlanType.ARRAY,
@@ -31,6 +32,7 @@ describe('getTypeAsString', () => {
     const stringPlan: ReferencePlan = {
       type: PlanType.REFERENCE,
       to: 'string',
+      libType: true,
     };
     const childInterfacePlan: InterfacePlan = {
       type: PlanType.INTERFACE,
@@ -46,20 +48,21 @@ describe('getTypeAsString', () => {
       ],
     };
 
-    expect(getTypeAsString(interfacePlan, sourceFile)).toBe(`
-{
-    myString: string;
-    child: {
-        name?: string;
-    };
-}
-    `.trim());
+    expect(getTypeAsString(interfacePlan, sourceFile).replace(/\s/g, '')).toBe(`
+    {
+        myString: string;
+        child: {
+            name?: string;
+        };
+    }
+    `.replace(/\s/g, ''));
   });
 
   it('should get reference as string', () => {
     const stringPlan: ReferencePlan = {
       type: PlanType.REFERENCE,
       to: 'string',
+      libType: true,
     };
 
     expect(getTypeAsString(stringPlan, sourceFile)).toBe('string');

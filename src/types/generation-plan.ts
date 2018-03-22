@@ -2,10 +2,44 @@ export enum PlanType {
   INTERFACE,
   ARRAY,
   REFERENCE,
+  UNION,
+}
+
+export enum ParameterType {
+  BODY = 'body',
+  QUERY = 'query',
+  FORM_DATA = 'formData',
+  PATH = 'path',
 }
 
 export interface GenerationPlan {
   declarations: Record<string, InterfacePlan | ArrayPlan>;
+  api: Record<string, ApiPlan>;
+}
+
+export interface ApiPlan {
+  operationId: string;
+  tags: string[];
+  url: string;
+  method: string;
+  parameters: ApiParameterPlan[];
+  responses: ApiResponsePlan[];
+}
+
+export interface ApiParameterPlan {
+  parameterType: ParameterType;
+  items: ApiParameterPlanItem[];
+}
+
+export interface ApiParameterPlanItem {
+  name: string;
+  optional: boolean;
+  payloadType?: TypePlan;
+}
+
+export interface ApiResponsePlan {
+  statusCode: string,
+  payloadType?: TypePlan;
 }
 
 export interface ArrayPlan {
@@ -21,6 +55,12 @@ export interface InterfacePlan {
 export interface ReferencePlan {
   type: PlanType.REFERENCE;
   to: string;
+  libType?: boolean;
+}
+
+export interface UnionTypePlan {
+  type: PlanType.UNION;
+  types: TypePlan[];
 }
 
 export interface PropertyPlan {
@@ -29,4 +69,4 @@ export interface PropertyPlan {
   optional: boolean;
 }
 
-export type TypePlan = ArrayPlan | InterfacePlan | ReferencePlan;
+export type TypePlan = ArrayPlan | InterfacePlan | ReferencePlan | UnionTypePlan;

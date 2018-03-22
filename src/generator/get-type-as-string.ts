@@ -1,12 +1,15 @@
 import { SourceFile, SyntaxKind } from 'ts-simple-ast';
 import { PlanType, PropertyPlan, TypePlan } from '../types/generation-plan';
 
-const INDENT_SIZE = 4;
-
-export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile, interfaceIndent = INDENT_SIZE): string {
+export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile): string {
   switch (typePlan.type) {
     case PlanType.ARRAY:
-      return `${getTypeAsString(typePlan.itemType, sourceFile)}[]`;
+      const itemTypeAsString = getTypeAsString(typePlan.itemType, sourceFile);
+      if (typePlan.itemType.type === PlanType.UNION) {
+        return `Array<${itemTypeAsString}>`;
+      } else {
+        return `${itemTypeAsString}[]`;
+      }
     case PlanType.INTERFACE:
       const temporaryInterface = sourceFile.addInterface({
         name: 'Inline',
@@ -14,28 +17,23 @@ export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile, inte
       typePlan.properties.forEach((propPlan: PropertyPlan) => {
         temporaryInterface.addProperty({
           name: propPlan.name,
-          type: getTypeAsString(propPlan.type, sourceFile, interfaceIndent + INDENT_SIZE),
+          type: getTypeAsString(propPlan.type, sourceFile),
           hasQuestionToken: propPlan.optional,
         });
       });
       const syntaxList = temporaryInterface.getChildrenOfKind(SyntaxKind.SyntaxList)[0];
-      let typeName = '{]';
+      let typeName = '{}';
       if (syntaxList) {
         const properties = syntaxList.getChildrenOfKind(SyntaxKind.PropertySignature).map(p => p.getText());
-        const formattedProperties = properties.map(p => indentString(p, interfaceIndent)).join('\n');
-        typeName = `{\n${formattedProperties}\n${indentString('}', interfaceIndent - INDENT_SIZE)}`;
+        if (properties.length > 0) {
+          typeName = `{\n${properties.join('\n')}\n}`;
+        }
       }
       temporaryInterface.remove();
       return typeName;
     case PlanType.REFERENCE:
       return typePlan.to;
+    case PlanType.UNION:
+      return typePlan.types.map(t => getTypeAsString(t, sourceFile)).join('|');
   }
-}
-
-function indentString(str: string, indent: number): string {
-  let result = str;
-  for (let i = 0; i < indent; i++) {
-    result = ' ' + result;
-  }
-  return result;
 }

@@ -9,13 +9,13 @@ export abstract class Generator {
 
   public abstract generate(): void;
 
-  protected setupFile(relativePath: string): SourceFile {
+  protected setupFile(relativePath: string, text?: string): SourceFile {
     const { project, options } = this.args;
     const filePath = createFilePath(relativePath, options);
     if (options.fileSystemHost.fileExistsSync(filePath)) {
       options.fileSystemHost.deleteSync(filePath);
     }
-    return project.createSourceFile(filePath);
+    return project.createSourceFile(filePath, text as string);
   }
 }
 

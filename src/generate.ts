@@ -1,11 +1,13 @@
 import { IOpenApiObject } from 'open-api.d.ts';
-import Project from 'ts-simple-ast';
+import Project, { IndentationText, QuoteType } from 'ts-simple-ast';
 import { DefaultFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
-import { DefinitionsGenerator, GeneratorArguments } from './generator/definitions-generator';
+import { ApiTypesGenerator } from './generator/api-types-generator';
+import { DefinitionsGenerator } from './generator/definitions-generator';
+import { GeneratorArguments } from './generator/generator-arguments';
 import { DefaultParser, ParserArguments } from './parser/default-parser';
 import { GenerateTypescriptOptions, InnerGenerateTypescriptOptions } from './types/generate-typescript-options';
 
-const defaultOptions = {
+const defaultOptions: InnerGenerateTypescriptOptions = {
   outputPath: './typegen',
   fileSystemHost: new DefaultFileSystemHost(),
 };
@@ -21,6 +23,10 @@ export function generateTypescript(schema: IOpenApiObject, customOptions: Genera
       compilerOptions: {
         rootDir: options.outputPath,
       },
+      manipulationSettings: {
+        quoteType: QuoteType.Single,
+        indentationText: IndentationText.TwoSpaces,
+      },
     },
     options.fileSystemHost,
   );
@@ -30,6 +36,14 @@ export function generateTypescript(schema: IOpenApiObject, customOptions: Genera
 
   const generateArgs: GeneratorArguments = { project, options, generationPlan };
   new DefinitionsGenerator(generateArgs).generate();
+  new ApiTypesGenerator(generateArgs).generate();
+
+  project.getSourceFiles()
+    .map((file) => file.formatText({
+      ensureNewLineAtEndOfFile: true,
+      insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: true,
+      insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces: true,
+    }));
 
   project.saveSync();
 }

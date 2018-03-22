@@ -7,6 +7,7 @@ export enum JsonSchemaType {
   BOOLEAN = 'boolean',
   OBJECT = 'object',
   ARRAY = 'array',
+  FILE = 'file',
 }
 
 export type ObjectSchemaProperties =  Record<string, SchemaObject | IReferenceObject>;
@@ -39,10 +40,16 @@ export interface BooleanSchemaObject {
   type: JsonSchemaType.BOOLEAN;
 }
 
+export interface FileSchemaObject {
+  type: JsonSchemaType.FILE;
+}
+
+
 export type SchemaObject =
   ObjectSchemaObject
   | StringSchemaObject
   | ArraySchemaObject
   | IntegerSchemaObject
   | NumberSchemaObject
-  | BooleanSchemaObject;
+  | BooleanSchemaObject
+  | FileSchemaObject;

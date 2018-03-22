@@ -1,6 +1,13 @@
-import { IOpenApiObject, IOperationObject, IParameterObject, IPathsObject } from 'open-api.d.ts';
+import { IOpenApiObject, IOperationObject, IParameterObject, IPathsObject, IResponseObject } from 'open-api.d.ts';
 import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
-import { GenerationPlan, PlanType } from '../types/generation-plan';
+import {
+  ApiParameterPlan,
+  ApiResponsePlan,
+  GenerationPlan,
+  ParameterType,
+  PlanType,
+  TypePlan,
+} from '../types/generation-plan';
 import { SchemaObject } from '../types/schema-object';
 import { ArrayType } from '../types/ts-extentions';
 import { getTypePlanFromSchemaObject } from './get-type-plan-from-schema-object';
@@ -15,11 +22,20 @@ export interface ParserArguments {
   options: InnerGenerateTypescriptOptions;
 }
 
-export class DefaultParser implements Parser {
-  constructor(private readonly args: ParserArguments) {
+export class DefaultParser extends Parser {
+  constructor(args: ParserArguments) {
+    super(args);
   }
 
   public parse(): GenerationPlan {
+
+    return {
+      declarations: this.createDeclarationPlans(),
+      api: this.createApiPlans(),
+    };
+  }
+
+  private createDeclarationPlans(): GenerationPlan['declarations'] {
     const { schema } = this.args;
 
     const declarations: GenerationPlan['declarations'] = {};
@@ -32,10 +48,30 @@ export class DefaultParser implements Parser {
         }
       });
     }
+    return declarations;
+  }
 
-    return {
-      declarations,
-    };
+  private createApiPlans(): GenerationPlan['api'] {
+    const apiPlans: GenerationPlan['api'] = {};
+
+    this.mapPaths((path, pathObject) => {
+      this.mapOperations(pathObject, (operation, operationObject) => {
+        if (!operationObject.operationId) {
+          throw new Error(`Operation Id for "${path} ${operation}" is missing. Parsing not possible.`);
+        }
+
+        apiPlans[operationObject.operationId] = {
+          operationId: operationObject.operationId,
+          tags: operationObject.tags || [],
+          url: path,
+          method: operation,
+          responses: this.createApiResponsePlans(operationObject),
+          parameters: this.createApiParameterPlans(pathObject, operationObject),
+        };
+      });
+    });
+
+    return apiPlans;
   }
 
   private mapPaths<T>(map: (pathAndExtension: string, pathObject: IPathsObject) => T): T[] {
@@ -56,6 +92,58 @@ export class DefaultParser implements Parser {
       .map(([operation, operationObject]) => forEach(operation, operationObject));
   }
 
+  private createApiResponsePlans(operationObject: IOperationObject): ApiResponsePlan[] {
+    return this.mapResponses(operationObject, (statusCode, responseObject) => {
+      let schema = (responseObject as any).schema;
+      if (!schema && (responseObject as any).type) {
+        schema = { type: (responseObject as any).type };
+      }
+      return {
+        statusCode,
+        payloadType: schema ? getTypePlanFromSchemaObject(schema) : undefined,
+      };
+    });
+  }
+
+  private createApiParameterPlans(pathObject: IPathsObject, operationObject: IOperationObject): ApiParameterPlan[] {
+    const groupedParameters: Partial<Record<ParameterType, IParameterObject[]>> = {};
+    this.mapParameters(pathObject, operationObject, (parameterObject) => {
+      const parameterType = parameterObject.in as ParameterType;
+      groupedParameters[parameterType] = [
+        ...(groupedParameters[parameterType] || []),
+        parameterObject,
+      ];
+    });
+    return Object.entries(groupedParameters)
+      .map(([parameterType, values]) => {
+        return {
+          parameterType: parameterType as ParameterType,
+          items: values!.map((parameterObject) => {
+            const items = (parameterObject as any).items;
+            let schema = (parameterObject as any).schema;
+            if (!schema && (parameterObject as any).type) {
+              schema = { type: (parameterObject as any).type };
+            }
+            let payloadType: TypePlan | undefined;
+            if (items) {
+              payloadType = {
+                type: PlanType.ARRAY,
+                itemType: getTypePlanFromSchemaObject(items),
+              };
+            } else if (schema) {
+              payloadType = getTypePlanFromSchemaObject(schema);
+            }
+
+            return {
+              payloadType,
+              name: parameterObject.name,
+              optional: parameterObject.required === false,
+            };
+          }),
+        };
+      });
+  }
+
   private mapParameters<T>(
     pathObject: IPathsObject,
     operationObject: IOperationObject,
@@ -68,5 +156,14 @@ export class DefaultParser implements Parser {
     return parameters
       .map((parameterOrReference) => resolveReferenceIfNecessary(this.args.schema, parameterOrReference))
       .map(parameter => forEach(parameter));
+  }
+
+  private mapResponses<T>(
+    operationObject: IOperationObject,
+    forEach: (responseCode: string, responseObject: IResponseObject) => T,
+  ): T[] {
+    return Object.entries(operationObject.responses)
+      .map(([code, responseOrReference]) => [code, resolveReferenceIfNecessary(this.args.schema, responseOrReference)])
+      .map(([code, response]) => forEach(code, response));
   }
 }

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2015",
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom"],
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
@@ -14,8 +14,7 @@
       "jest",
       "node"
     ],
-    "esModuleInterop": true,
-    "noUnusedLocals": true
+    "esModuleInterop": true
   },
   "files": [
     "src/index.ts"
