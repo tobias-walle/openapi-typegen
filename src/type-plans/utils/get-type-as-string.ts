@@ -1,16 +1,17 @@
 import { SourceFile, SyntaxKind } from 'ts-simple-ast';
-import { PlanType, PropertyPlan, TypePlan } from '../types/generation-plan';
+import { PropertyPlan, TypePlanType } from '../index';
+import { TypePlan } from '../types';
 
 export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile): string {
   switch (typePlan.type) {
-    case PlanType.ARRAY:
+    case TypePlanType.ARRAY:
       const itemTypeAsString = getTypeAsString(typePlan.itemType, sourceFile);
-      if (typePlan.itemType.type === PlanType.UNION) {
+      if (typePlan.itemType.type === TypePlanType.UNION) {
         return `Array<${itemTypeAsString}>`;
       } else {
         return `${itemTypeAsString}[]`;
       }
-    case PlanType.INTERFACE:
+    case TypePlanType.INTERFACE:
       const temporaryInterface = sourceFile.addInterface({
         name: 'Inline',
       });
@@ -31,15 +32,15 @@ export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile): str
       }
       temporaryInterface.remove();
       return typeName;
-    case PlanType.REFERENCE:
+    case TypePlanType.REFERENCE:
       if (typePlan.generics && typePlan.generics.length > 0) {
         return `${typePlan.to}<${typePlan.generics.map((type) => getTypeAsString(type, sourceFile))}>`;
       } else {
         return typePlan.to;
       }
-    case PlanType.UNION:
+    case TypePlanType.UNION:
       return [...new Set(typePlan.types)].map(t => getTypeAsString(t, sourceFile)).join('|');
-    case PlanType.FUNCTION:
+    case TypePlanType.FUNCTION:
       const parameters = typePlan.arguments
         .map(({name, type}) => `${name}: ${getTypeAsString(type, sourceFile)}`)
         .join(', ');

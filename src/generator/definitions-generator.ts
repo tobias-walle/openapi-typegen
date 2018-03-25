@@ -1,7 +1,6 @@
-import { PlanType } from '../types/generation-plan';
-import { addArrayTypeAlias } from './add-array-type-alias';
-import { addInterface } from './add-interface';
-import { Generator } from './generator';
+import { addArrayTypeAlias, addInterface } from './utils';
+import { TypePlanType } from '../type-plans';
+import { Generator } from '../types/generator';
 
 export class DefinitionsGenerator extends Generator {
   public generate() {
@@ -10,7 +9,7 @@ export class DefinitionsGenerator extends Generator {
     const sourceFile = this.setupFile('definitions.ts');
 
     Object.entries(generationPlan.definitions)
-      .forEach(([name, plan]) => plan.type === PlanType.INTERFACE
+      .forEach(([name, plan]) => plan.type === TypePlanType.INTERFACE
         ? addInterface(sourceFile, plan, name)
         : addArrayTypeAlias(sourceFile, plan, name),
       );

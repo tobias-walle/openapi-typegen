@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { SourceFile } from 'ts-simple-ast';
-import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
-import { GeneratorArguments } from './generator-arguments';
+import { GeneratorArguments } from '../generator/generator-arguments';
+import { InnerGenerateTypescriptOptions } from './generate-typescript-options';
 
 export abstract class Generator {
   constructor(protected readonly args: GeneratorArguments) {

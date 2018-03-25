@@ -1,5 +1,5 @@
 import { QuoteType, SourceFile, VariableDeclarationType } from 'ts-simple-ast';
-import { Generator } from './generator';
+import { Generator } from '../types/generator';
 
 export class ApiMappingGenerator extends Generator {
   public generate(): void {

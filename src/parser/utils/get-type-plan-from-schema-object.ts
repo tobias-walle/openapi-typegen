@@ -1,7 +1,7 @@
 import { IReferenceObject } from 'open-api.d.ts';
-import { anyTypePlan, createUnionTypePlanFromStrings } from '../generator/type-plan-utils';
-import { PlanType, PropertyPlan, TypePlan } from '../types/generation-plan';
-import { JsonSchemaType, ObjectSchemaProperties, SchemaObject } from '../types/schema-object';
+import { PropertyPlan, TypePlan, TypePlanType } from '../../type-plans';
+import { anyTypePlan, createUnionTypePlanFromStrings } from '../../type-plans/utils';
+import { JsonSchemaType, ObjectSchemaProperties, SchemaObject } from '../../types/schema-object';
 import { isReference } from './reference-utils';
 
 const jsonSchemaTypeToTypescriptTypeName: Record<JsonSchemaType, string> = {
@@ -17,7 +17,7 @@ const jsonSchemaTypeToTypescriptTypeName: Record<JsonSchemaType, string> = {
 export function getTypePlanFromSchemaObject(schemaObject: SchemaObject | IReferenceObject): TypePlan {
   if (isReference(schemaObject)) {
     return {
-      type: PlanType.REFERENCE,
+      type: TypePlanType.REFERENCE,
       to: getTypeNameFromReference(schemaObject),
     };
   }
@@ -31,18 +31,18 @@ export function getTypePlanFromSchemaObject(schemaObject: SchemaObject | IRefere
     case JsonSchemaType.FILE:
     case JsonSchemaType.BOOLEAN:
       return {
-        type: PlanType.REFERENCE,
+        type: TypePlanType.REFERENCE,
         to: jsonSchemaTypeToTypescriptTypeName[schemaObject.type],
         libType: true,
       };
     case JsonSchemaType.ARRAY:
       return {
-        type: PlanType.ARRAY,
+        type: TypePlanType.ARRAY,
         itemType: getTypePlanFromSchemaObject(schemaObject.items),
       };
     case JsonSchemaType.OBJECT:
       return {
-        type: PlanType.INTERFACE,
+        type: TypePlanType.INTERFACE,
         properties: getPropertyPlansFromObjectSchemaProperties(schemaObject.properties, schemaObject.required),
       };
     default:

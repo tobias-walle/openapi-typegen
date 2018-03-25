@@ -1,6 +1,6 @@
 import { default as Project, SourceFile } from 'ts-simple-ast';
 import { VirtualFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
-import { ArrayPlan, InterfacePlan, PlanType, ReferencePlan } from '../types/generation-plan';
+import { ArrayPlan, InterfacePlan, ReferencePlan, TypePlanType } from '../types';
 import { getTypeAsString } from './get-type-as-string';
 
 describe('getTypeAsString', () => {
@@ -16,12 +16,12 @@ describe('getTypeAsString', () => {
 
   it('should get array as string', () => {
     const stringPlan: ReferencePlan = {
-      type: PlanType.REFERENCE,
+      type: TypePlanType.REFERENCE,
       to: 'string',
       libType: true,
     };
     const arrayPlan: ArrayPlan = {
-      type: PlanType.ARRAY,
+      type: TypePlanType.ARRAY,
       itemType: stringPlan,
     };
 
@@ -30,18 +30,18 @@ describe('getTypeAsString', () => {
 
   it('should get interface as string', () => {
     const stringPlan: ReferencePlan = {
-      type: PlanType.REFERENCE,
+      type: TypePlanType.REFERENCE,
       to: 'string',
       libType: true,
     };
     const childInterfacePlan: InterfacePlan = {
-      type: PlanType.INTERFACE,
+      type: TypePlanType.INTERFACE,
       properties: [
         { type: stringPlan, name: 'name', optional: true },
       ],
     };
     const interfacePlan: InterfacePlan = {
-      type: PlanType.INTERFACE,
+      type: TypePlanType.INTERFACE,
       properties: [
         { type: stringPlan, name: 'myString', optional: false },
         { type: childInterfacePlan, name: 'child', optional: false },
@@ -60,7 +60,7 @@ describe('getTypeAsString', () => {
 
   it('should get reference as string', () => {
     const stringPlan: ReferencePlan = {
-      type: PlanType.REFERENCE,
+      type: TypePlanType.REFERENCE,
       to: 'string',
       libType: true,
     };

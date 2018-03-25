@@ -1,9 +1,7 @@
 import { PropertySignatureStructure, SourceFile } from 'ts-simple-ast';
-import { ApiPlan, FunctionTypePlan, PlanType } from '../types/generation-plan';
-import { Generator } from './generator';
-import { getDefinitionsImport } from './get-definitions-import';
-import { getTypeAsString } from './get-type-as-string';
-import { asPromise } from './type-plan-utils';
+import { ApiPlan, FunctionTypePlan, TypePlanType } from '../type-plans';
+import { asPromise, getDefinitionsImport, getTypeAsString } from '../type-plans/utils';
+import { Generator } from '../types/generator';
 
 export class AxiosGenerator extends Generator {
   public generate(): void {
@@ -33,10 +31,10 @@ export class AxiosGenerator extends Generator {
 
   private getApiFetchFunctionProperty(apiPlan: ApiPlan, sourceFile: SourceFile): PropertySignatureStructure {
     const functionPlan: FunctionTypePlan = {
-      type: PlanType.FUNCTION,
+      type: TypePlanType.FUNCTION,
       returnType: asPromise(
         {
-          type: PlanType.REFERENCE,
+          type: TypePlanType.REFERENCE,
           to: 'AxiosResponse',
           generics: [apiPlan.responses.success]
         },

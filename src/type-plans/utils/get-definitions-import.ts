@@ -1,4 +1,4 @@
-import { GenerationPlan } from '../types/generation-plan';
+import { GenerationPlan } from '../types';
 
 export function getDefinitionsImport(definitions: GenerationPlan['definitions']): string {
   const definitionImports: string[] = getDefinitionReferenceNames(definitions);

@@ -1,9 +1,7 @@
 import { SourceFile } from 'ts-simple-ast';
-import { ApiPlan, InterfacePlan, PlanType, PropertyPlan, } from '../types/generation-plan';
-import { Generator } from './generator';
-import { getDefinitionsImport } from './get-definitions-import';
-import { getTypeAsString } from './get-type-as-string';
-import { createUnionTypePlanFromStrings } from './type-plan-utils';
+import { ApiPlan, InterfacePlan, PropertyPlan, TypePlanType } from '../type-plans';
+import { createUnionTypePlanFromStrings, getDefinitionsImport, getTypeAsString } from '../type-plans/utils';
+import { Generator } from '../types/generator';
 
 const template = `
 {{imports}}
@@ -33,7 +31,7 @@ export class ApiTypesGenerator extends Generator {
     Object.values(generationPlan.api)
       .forEach((apiPlan) => {
         const apiTypeInterface: InterfacePlan = {
-          type: PlanType.INTERFACE,
+          type: TypePlanType.INTERFACE,
           properties: this.generateApiTypeInterfacePlanProperties(apiPlan),
         };
 
@@ -57,7 +55,7 @@ export class ApiTypesGenerator extends Generator {
       {
         name: 'responses',
         type: {
-          type: PlanType.INTERFACE,
+          type: TypePlanType.INTERFACE,
           properties: [
             {
               name: 'success',

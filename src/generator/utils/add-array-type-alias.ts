@@ -1,6 +1,6 @@
 import { SourceFile } from 'ts-simple-ast';
-import { ArrayPlan } from '../types/generation-plan';
-import { getTypeAsString } from './get-type-as-string';
+import { ArrayPlan } from '../../type-plans';
+import { getTypeAsString } from '../../type-plans/utils';
 
 export function addArrayTypeAlias(sourceFile: SourceFile, plan: ArrayPlan, name: string): void {
   sourceFile.addTypeAlias({

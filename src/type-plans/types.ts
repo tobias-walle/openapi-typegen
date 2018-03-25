@@ -1,4 +1,4 @@
-export enum PlanType {
+export enum TypePlanType {
   INTERFACE,
   ARRAY,
   REFERENCE,
@@ -56,29 +56,29 @@ export interface ApiResponsePlan {
 }
 
 export interface ArrayPlan {
-  type: PlanType.ARRAY;
+  type: TypePlanType.ARRAY;
   itemType: TypePlan;
 }
 
 export interface InterfacePlan {
-  type: PlanType.INTERFACE;
+  type: TypePlanType.INTERFACE;
   properties: PropertyPlan[];
 }
 
 export interface ReferencePlan {
-  type: PlanType.REFERENCE;
+  type: TypePlanType.REFERENCE;
   to: string;
   generics?: TypePlan[];
   libType?: boolean;
 }
 
 export interface UnionTypePlan {
-  type: PlanType.UNION;
+  type: TypePlanType.UNION;
   types: TypePlan[];
 }
 
 export interface FunctionTypePlan {
-  type: PlanType.FUNCTION;
+  type: TypePlanType.FUNCTION;
   arguments: FunctionTypeArgumentPlan[];
   returnType: TypePlan;
 }

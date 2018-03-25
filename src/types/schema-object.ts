@@ -44,7 +44,6 @@ export interface FileSchemaObject {
   type: JsonSchemaType.FILE;
 }
 
-
 export type SchemaObject =
   ObjectSchemaObject
   | StringSchemaObject

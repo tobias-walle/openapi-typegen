@@ -1,21 +1,22 @@
 import { IOpenApiObject, IOperationObject, IParameterObject, IPathsObject, IResponseObject } from 'open-api.d.ts';
-import { formDataTypePlan, undefinedPlan } from '../generator/type-plan-utils';
-import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
 import {
   ApiParameterMappingPlan,
   ApiParameterPlan,
   ApiResponseMappingPlan,
   ApiResponsePlan,
-  GenerationPlan, InterfacePlan,
+  GenerationPlan,
+  InterfacePlan,
   ParameterType,
-  PlanType, PropertyPlan,
+  PropertyPlan,
   TypePlan,
-} from '../types/generation-plan';
+  TypePlanType
+} from '../type-plans';
+import { formDataTypePlan, undefinedPlan } from '../type-plans/utils';
+import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
+import { Parser } from '../types/parser';
 import { SchemaObject } from '../types/schema-object';
 import { ArrayType } from '../types/ts-extentions';
-import { getTypePlanFromSchemaObject } from './get-type-plan-from-schema-object';
-import { Parser } from './parser';
-import { resolveReferenceIfNecessary } from './reference-utils';
+import { getTypePlanFromSchemaObject, resolveReferenceIfNecessary } from './utils';
 
 const operations = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 type Operation = ArrayType<typeof operations>;
@@ -46,7 +47,7 @@ export class DefaultParser extends Parser {
     if (definitions) {
       Object.entries(definitions).forEach(([name, schemaObject]) => {
         const typePlan = getTypePlanFromSchemaObject(schemaObject);
-        if (typePlan.type === PlanType.INTERFACE || typePlan.type === PlanType.ARRAY) {
+        if (typePlan.type === TypePlanType.INTERFACE || typePlan.type === TypePlanType.ARRAY) {
           declarations[name] = typePlan;
         }
       });
@@ -115,7 +116,7 @@ export class DefaultParser extends Parser {
       return (defaultResponse && defaultResponse.payloadType) || undefinedPlan;
     }
     return {
-      type: PlanType.UNION,
+      type: TypePlanType.UNION,
       types: filteredResponses
         .map((r) => r.payloadType || undefinedPlan)
     };
@@ -140,7 +141,7 @@ export class DefaultParser extends Parser {
   ): ApiParameterMappingPlan {
     const allPlans = this.createApiParameterPlans(pathObject, operationObject);
     const parameterType: InterfacePlan = {
-      type: PlanType.INTERFACE,
+      type: TypePlanType.INTERFACE,
       properties: allPlans.map(parameter => this.createApiParameterPropertyPlan(parameter))
     };
     return {
@@ -171,7 +172,7 @@ export class DefaultParser extends Parser {
             let payloadType: TypePlan | undefined;
             if (items) {
               payloadType = {
-                type: PlanType.ARRAY,
+                type: TypePlanType.ARRAY,
                 itemType: getTypePlanFromSchemaObject(items),
               };
             } else if (schema) {
@@ -195,7 +196,7 @@ export class DefaultParser extends Parser {
       type = firstItem.payloadType || undefinedPlan;
     } else {
       type = {
-        type: PlanType.INTERFACE,
+        type: TypePlanType.INTERFACE,
         properties: parameter.items
           .map(item => ({
               name: item.name,
@@ -206,7 +207,7 @@ export class DefaultParser extends Parser {
       };
       if (parameter.parameterType === ParameterType.FORM_DATA) {
         type = {
-          type: PlanType.UNION,
+          type: TypePlanType.UNION,
           types: [formDataTypePlan, type],
         };
       }

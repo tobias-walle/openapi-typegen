@@ -1,5 +1,5 @@
-import { GenerationPlan } from '../types/generation-plan';
-import { ParserArguments } from './default-parser';
+import { ParserArguments } from '../parser/default-parser';
+import { GenerationPlan } from '../type-plans';
 
 export abstract class Parser {
   constructor(protected readonly args: ParserArguments) {
