@@ -3,6 +3,7 @@ export enum PlanType {
   ARRAY,
   REFERENCE,
   UNION,
+  FUNCTION,
 }
 
 export enum ParameterType {
@@ -13,7 +14,7 @@ export enum ParameterType {
 }
 
 export interface GenerationPlan {
-  declarations: Record<string, InterfacePlan | ArrayPlan>;
+  definitions: Record<string, InterfacePlan | ArrayPlan>;
   api: Record<string, ApiPlan>;
 }
 
@@ -22,8 +23,19 @@ export interface ApiPlan {
   tags: string[];
   url: string;
   method: string;
-  parameters: ApiParameterPlan[];
-  responses: ApiResponsePlan[];
+  parameters: ApiParameterMappingPlan;
+  responses: ApiResponseMappingPlan;
+}
+
+export interface ApiParameterMappingPlan {
+  type: TypePlan;
+  byParameterType: ApiParameterPlan[];
+}
+
+export interface ApiResponseMappingPlan {
+  success: TypePlan;
+  error: TypePlan;
+  byStatusCode: ApiResponsePlan[];
 }
 
 export interface ApiParameterPlan {
@@ -38,7 +50,7 @@ export interface ApiParameterPlanItem {
 }
 
 export interface ApiResponsePlan {
-  statusCode: string,
+  statusCode: string;
   payloadType?: TypePlan;
 }
 
@@ -55,6 +67,7 @@ export interface InterfacePlan {
 export interface ReferencePlan {
   type: PlanType.REFERENCE;
   to: string;
+  generics?: TypePlan[];
   libType?: boolean;
 }
 
@@ -63,10 +76,21 @@ export interface UnionTypePlan {
   types: TypePlan[];
 }
 
+export interface FunctionTypePlan {
+  type: PlanType.FUNCTION;
+  arguments: FunctionTypeArgumentPlan[];
+  returnType: TypePlan;
+}
+
+export interface FunctionTypeArgumentPlan {
+  type: TypePlan;
+  name: string;
+}
+
 export interface PropertyPlan {
   type: TypePlan;
   name: string;
   optional: boolean;
 }
 
-export type TypePlan = ArrayPlan | InterfacePlan | ReferencePlan | UnionTypePlan;
+export type TypePlan = ArrayPlan | InterfacePlan | ReferencePlan | UnionTypePlan | FunctionTypePlan;

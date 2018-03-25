@@ -1,11 +1,14 @@
 import { IOpenApiObject, IOperationObject, IParameterObject, IPathsObject, IResponseObject } from 'open-api.d.ts';
+import { formDataTypePlan, undefinedPlan } from '../generator/type-plan-utils';
 import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
 import {
+  ApiParameterMappingPlan,
   ApiParameterPlan,
+  ApiResponseMappingPlan,
   ApiResponsePlan,
-  GenerationPlan,
+  GenerationPlan, InterfacePlan,
   ParameterType,
-  PlanType,
+  PlanType, PropertyPlan,
   TypePlan,
 } from '../types/generation-plan';
 import { SchemaObject } from '../types/schema-object';
@@ -30,15 +33,15 @@ export class DefaultParser extends Parser {
   public parse(): GenerationPlan {
 
     return {
-      declarations: this.createDeclarationPlans(),
+      definitions: this.createDeclarationPlans(),
       api: this.createApiPlans(),
     };
   }
 
-  private createDeclarationPlans(): GenerationPlan['declarations'] {
+  private createDeclarationPlans(): GenerationPlan['definitions'] {
     const { schema } = this.args;
 
-    const declarations: GenerationPlan['declarations'] = {};
+    const declarations: GenerationPlan['definitions'] = {};
     const definitions: Record<string, SchemaObject> = schema.definitions;
     if (definitions) {
       Object.entries(definitions).forEach(([name, schemaObject]) => {
@@ -65,8 +68,8 @@ export class DefaultParser extends Parser {
           tags: operationObject.tags || [],
           url: path,
           method: operation,
-          responses: this.createApiResponsePlans(operationObject),
-          parameters: this.createApiParameterPlans(pathObject, operationObject),
+          responses: this.createApiResponseMapping(operationObject),
+          parameters: this.createApiParameterMapping(pathObject, operationObject),
         };
       });
     });
@@ -92,7 +95,32 @@ export class DefaultParser extends Parser {
       .map(([operation, operationObject]) => forEach(operation, operationObject));
   }
 
-  private createApiResponsePlans(operationObject: IOperationObject): ApiResponsePlan[] {
+  private createApiResponseMapping(operationObject: IOperationObject): ApiResponseMappingPlan {
+    const responsePlansByStatusCode = this.createApiResponsePlansByStatusCode(operationObject);
+    return {
+      success: this.getAggregatedResponseTypePlan(responsePlansByStatusCode, filterSuccessfulResponses),
+      error: this.getAggregatedResponseTypePlan(responsePlansByStatusCode, filterUnsuccessfulResponses),
+      byStatusCode: responsePlansByStatusCode,
+    };
+  }
+
+  private getAggregatedResponseTypePlan(
+    responses: ApiResponsePlan[],
+    filter: (r: ApiResponsePlan) => boolean
+  ): TypePlan {
+    const filteredResponses = responses.filter(filter);
+    if (filteredResponses.length === 0) {
+      const defaultResponse = responses.find((r) => r.statusCode === 'default');
+      return (defaultResponse && defaultResponse.payloadType) || undefinedPlan;
+    }
+    return {
+      type: PlanType.UNION,
+      types: filteredResponses
+        .map((r) => r.payloadType || undefinedPlan)
+    };
+  }
+
+  private createApiResponsePlansByStatusCode(operationObject: IOperationObject): ApiResponsePlan[] {
     return this.mapResponses(operationObject, (statusCode, responseObject) => {
       let schema = (responseObject as any).schema;
       if (!schema && (responseObject as any).type) {
@@ -103,6 +131,21 @@ export class DefaultParser extends Parser {
         payloadType: schema ? getTypePlanFromSchemaObject(schema) : undefined,
       };
     });
+  }
+
+  private createApiParameterMapping(
+    pathObject: IPathsObject,
+    operationObject: IOperationObject
+  ): ApiParameterMappingPlan {
+    const allPlans = this.createApiParameterPlans(pathObject, operationObject);
+    const parameterType: InterfacePlan = {
+      type: PlanType.INTERFACE,
+      properties: allPlans.map(parameter => this.createApiParameterPropertyPlan(parameter))
+    };
+    return {
+      byParameterType: allPlans,
+      type: parameterType,
+    };
   }
 
   private createApiParameterPlans(pathObject: IPathsObject, operationObject: IOperationObject): ApiParameterPlan[] {
@@ -144,6 +187,37 @@ export class DefaultParser extends Parser {
       });
   }
 
+  private createApiParameterPropertyPlan(parameter: ApiParameterPlan): PropertyPlan {
+    let type: TypePlan;
+    if (parameter.parameterType === ParameterType.BODY) {
+      const firstItem = parameter.items[0];
+      type = firstItem.payloadType || undefinedPlan;
+    } else {
+      type = {
+        type: PlanType.INTERFACE,
+        properties: parameter.items
+          .map(item => ({
+              name: item.name,
+              type: item.payloadType || undefinedPlan,
+              optional: item.optional,
+            }),
+          ),
+      };
+      if (parameter.parameterType === ParameterType.FORM_DATA) {
+        type = {
+          type: PlanType.UNION,
+          types: [formDataTypePlan, type],
+        };
+      }
+    }
+
+    return {
+      name: parameter.parameterType,
+      type,
+      optional: false,
+    };
+  }
+
   private mapParameters<T>(
     pathObject: IPathsObject,
     operationObject: IOperationObject,
@@ -166,4 +240,13 @@ export class DefaultParser extends Parser {
       .map(([code, responseOrReference]) => [code, resolveReferenceIfNecessary(this.args.schema, responseOrReference)])
       .map(([code, response]) => forEach(code, response));
   }
+}
+
+function filterSuccessfulResponses(response: ApiResponsePlan): boolean {
+  return response.statusCode[0] === '2';
+}
+
+function filterUnsuccessfulResponses(response: ApiResponsePlan): boolean {
+  const firstChar = response.statusCode[0];
+  return firstChar !== '2' && response.statusCode !== 'default';
 }

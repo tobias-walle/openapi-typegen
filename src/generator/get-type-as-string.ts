@@ -32,8 +32,18 @@ export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile): str
       temporaryInterface.remove();
       return typeName;
     case PlanType.REFERENCE:
-      return typePlan.to;
+      if (typePlan.generics && typePlan.generics.length > 0) {
+        return `${typePlan.to}<${typePlan.generics.map((type) => getTypeAsString(type, sourceFile))}>`;
+      } else {
+        return typePlan.to;
+      }
     case PlanType.UNION:
       return [...new Set(typePlan.types)].map(t => getTypeAsString(t, sourceFile)).join('|');
+    case PlanType.FUNCTION:
+      const parameters = typePlan.arguments
+        .map(({name, type}) => `${name}: ${getTypeAsString(type, sourceFile)}`)
+        .join(', ');
+      const returnType = getTypeAsString(typePlan.returnType, sourceFile);
+      return `(${parameters}) => ${returnType}`;
   }
 }

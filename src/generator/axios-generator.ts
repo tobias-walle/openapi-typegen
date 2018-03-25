@@ -1,9 +1,55 @@
+import { PropertySignatureStructure, SourceFile } from 'ts-simple-ast';
+import { ApiPlan, FunctionTypePlan, PlanType, TypePlan } from '../types/generation-plan';
 import { Generator } from './generator';
+import { getDefinitionsImport } from './get-definitions-import';
+import { getTypeAsString } from './get-type-as-string';
+import { asPromise } from './type-plan-utils';
 
 export class AxiosGenerator extends Generator {
   public generate(): void {
     this.setupFile('api-utils.ts', apiUtilsTemplate);
-    this.setupFile('create-api.ts', createApiTemplate);
+    const createApiSource = this.addDefinitionImports(createApiTemplate);
+    const createApiSourceFile = this.setupFile('create-api.ts', createApiSource);
+    this.addApiInterface(createApiSourceFile);
+  }
+
+  private addDefinitionImports(template: string): string {
+    return template.replace('{{imports}}', getDefinitionsImport(this.args.generationPlan.definitions));
+  }
+
+  private addApiInterface(sourceFile: SourceFile): void {
+    sourceFile.addInterface({
+      name: 'Api',
+      properties: this.getApiProperties(sourceFile),
+      isExported: true,
+    });
+  }
+
+  private getApiProperties(sourceFile: SourceFile): PropertySignatureStructure[] {
+    const { generationPlan } = this.args;
+    return Object.values(generationPlan.api)
+      .map(apiPlan => this.getApiProperty(apiPlan, sourceFile));
+  }
+
+  private getApiProperty(apiPlan: ApiPlan, sourceFile: SourceFile): PropertySignatureStructure {
+    const functionPlan: FunctionTypePlan = {
+      type: PlanType.FUNCTION,
+      returnType: asPromise(
+        {
+          type: PlanType.REFERENCE,
+          to: 'AxiosResponse',
+          generics: [apiPlan.responses.success]
+        },
+      ),
+      arguments: [{
+        name: 'parameters',
+        type: apiPlan.parameters.type,
+      }]
+    };
+    return {
+      name: apiPlan.operationId,
+      type: getTypeAsString(functionPlan, sourceFile)
+    };
   }
 }
 
@@ -63,6 +109,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { apiMapping, ApiMappingItem } from './api-mapping';
 import { ApiOperationIds, ApiTypes } from './api-types';
 import { applyParametersToAxiosRequestConfig, keys } from './api-utils';
+{{imports}}
 
 export type ApiParameters<K extends ApiOperationIds> = ApiTypes[K]['parameters'];
 export type ApiResponses<K extends ApiOperationIds> = ApiTypes[K]['responses'];
@@ -73,10 +120,6 @@ export type ApiFetchParameters<K extends ApiOperationIds> = {
 
 export type ApiFetchFunction<K extends ApiOperationIds> =
   (parameters: ApiParameters<K>) => Promise<AxiosResponse<ApiResponses<K>['success']>>;
-
-export type Api = {
-  [key in ApiOperationIds]: ApiFetchFunction<key>
-};
 
 export function createApi(): Api {
   return keys(apiMapping)

@@ -9,7 +9,7 @@ export class DefinitionsGenerator extends Generator {
 
     const sourceFile = this.setupFile('definitions.ts');
 
-    Object.entries(generationPlan.declarations)
+    Object.entries(generationPlan.definitions)
       .forEach(([name, plan]) => plan.type === PlanType.INTERFACE
         ? addInterface(sourceFile, plan, name)
         : addArrayTypeAlias(sourceFile, plan, name),

@@ -1,4 +1,4 @@
-import { PlanType, ReferencePlan, UnionTypePlan } from '../types/generation-plan';
+import { PlanType, ReferencePlan, TypePlan, UnionTypePlan } from '../types/generation-plan';
 
 export const formDataTypePlan: ReferencePlan = {
   type: PlanType.REFERENCE,
@@ -17,6 +17,15 @@ export const undefinedPlan: ReferencePlan = {
   to: 'undefined',
   libType: true,
 };
+
+export function asPromise(typePlan: TypePlan): ReferencePlan {
+  return {
+    type: PlanType.REFERENCE,
+    to: 'Promise',
+    generics: [typePlan],
+    libType: true,
+  };
+}
 
 export function createUnionTypePlanFromStrings(strings: string[]): UnionTypePlan {
   return {
