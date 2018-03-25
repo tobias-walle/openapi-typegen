@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import ora from 'ora';
 import { generateTypescript } from '../core';
 import { getSchema } from './get-schema';
