@@ -1,6 +1,6 @@
 {
   "name": "openapi-typegen",
-  "version": "0.0.0-development",
+  "version": "0.0.1-development",
   "description": "Generate typescript from swagger files",
   "main": "./lib/core/index.js",
   "files": [
@@ -16,6 +16,7 @@
   "scripts": {
     "cli": "ts-node src/cli/index.ts",
     "build": "tsc",
+    "prepublish": "run-s lint test build",
     "test": "jest",
     "lint": "tslint -p tsconfig.json",
     "semantic-release": "semantic-release",
@@ -30,6 +31,7 @@
     "axios": "^0.18.0",
     "coveralls": "^3.0.0",
     "jest": "^22.4.2",
+    "npm-run-all": "^4.1.2",
     "open-api.d.ts": "^3.0.1",
     "semantic-release": "^15.1.4",
     "ts-jest": "^22.4.1",
