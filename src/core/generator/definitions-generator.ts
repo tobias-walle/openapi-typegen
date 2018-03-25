@@ -1,6 +1,6 @@
-import { addArrayTypeAlias, addInterface } from './utils';
 import { TypePlanType } from '../type-plans';
 import { Generator } from '../types/generator';
+import { addArrayTypeAlias, addInterface } from './utils';
 
 export class DefinitionsGenerator extends Generator {
   public generate() {
