@@ -20,6 +20,7 @@ export interface GenerationPlan {
 
 export interface ApiPlan {
   operationId: string;
+  docs?: string;
   tags: string[];
   url: string;
   method: string;

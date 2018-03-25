@@ -41,27 +41,45 @@ function createApiFetchFunction<K extends ApiOperationIds>(mappingItem: ApiMappi
 }
 
 export interface Api {
+  /**
+   * Update an existing pet
+   */
   updatePet: (parameters: {
     body: Pet;
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Add a new pet to the store
+   */
   addPet: (parameters: {
     body: Pet;
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Finds Pets by status
+   */
   findPetsByStatus: (parameters: {
     query: {
       status: Array<'available' | 'pending' | 'sold'>;
     };
   }) => Promise<AxiosResponse<Pet[]>>;
+  /**
+   * Finds Pets by tags
+   */
   findPetsByTags: (parameters: {
     query: {
       tags: string[];
     };
   }) => Promise<AxiosResponse<Pet[]>>;
+  /**
+   * Find pet by ID
+   */
   getPetById: (parameters: {
     path: {
       petId: number;
     };
   }) => Promise<AxiosResponse<Pet>>;
+  /**
+   * Updates a pet in the store with form data
+   */
   updatePetWithForm: (parameters: {
     path: {
       petId: number;
@@ -71,6 +89,9 @@ export interface Api {
       status?: string;
     };
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Deletes a pet
+   */
   deletePet: (parameters: {
     header: {
       api_key?: string;
@@ -79,6 +100,9 @@ export interface Api {
       petId: number;
     };
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * uploads an image
+   */
   uploadFile: (parameters: {
     path: {
       petId: number;
@@ -88,47 +112,83 @@ export interface Api {
       file?: File;
     };
   }) => Promise<AxiosResponse<ApiResponse>>;
+  /**
+   * Returns pet inventories by status
+   */
   getInventory: (parameters: {}) => Promise<AxiosResponse<{}>>;
+  /**
+   * Place an order for a pet
+   */
   placeOrder: (parameters: {
     body: Order;
   }) => Promise<AxiosResponse<Order>>;
+  /**
+   * Find purchase order by ID
+   */
   getOrderById: (parameters: {
     path: {
       orderId: number;
     };
   }) => Promise<AxiosResponse<Order>>;
+  /**
+   * Delete purchase order by ID
+   */
   deleteOrder: (parameters: {
     path: {
       orderId: number;
     };
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Create user
+   */
   createUser: (parameters: {
     body: User;
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Creates list of users with given input array
+   */
   createUsersWithArrayInput: (parameters: {
     body: User[];
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Creates list of users with given input array
+   */
   createUsersWithListInput: (parameters: {
     body: User[];
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Logs user into the system
+   */
   loginUser: (parameters: {
     query: {
       username: string;
       password: string;
     };
   }) => Promise<AxiosResponse<string>>;
+  /**
+   * Logs out current logged in user session
+   */
   logoutUser: (parameters: {}) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Get user by user name
+   */
   getUserByName: (parameters: {
     path: {
       username: string;
     };
   }) => Promise<AxiosResponse<User>>;
+  /**
+   * Updated user
+   */
   updateUser: (parameters: {
     path: {
       username: string;
     };
     body: User;
   }) => Promise<AxiosResponse<undefined>>;
+  /**
+   * Delete user
+   */
   deleteUser: (parameters: {
     path: {
       username: string;

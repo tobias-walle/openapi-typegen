@@ -65,6 +65,7 @@ export class DefaultParser extends Parser {
 
         apiPlans[operationObject.operationId] = {
           operationId: operationObject.operationId,
+          docs: operationObject.summary,
           tags: operationObject.tags || [],
           url: path,
           method: operation,

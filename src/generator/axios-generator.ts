@@ -1,5 +1,5 @@
 import { PropertySignatureStructure, SourceFile } from 'ts-simple-ast';
-import { ApiPlan, FunctionTypePlan, PlanType, TypePlan } from '../types/generation-plan';
+import { ApiPlan, FunctionTypePlan, PlanType } from '../types/generation-plan';
 import { Generator } from './generator';
 import { getDefinitionsImport } from './get-definitions-import';
 import { getTypeAsString } from './get-type-as-string';
@@ -28,10 +28,10 @@ export class AxiosGenerator extends Generator {
   private getApiProperties(sourceFile: SourceFile): PropertySignatureStructure[] {
     const { generationPlan } = this.args;
     return Object.values(generationPlan.api)
-      .map(apiPlan => this.getApiProperty(apiPlan, sourceFile));
+      .map(apiPlan => this.getApiFetchFunctionProperty(apiPlan, sourceFile));
   }
 
-  private getApiProperty(apiPlan: ApiPlan, sourceFile: SourceFile): PropertySignatureStructure {
+  private getApiFetchFunctionProperty(apiPlan: ApiPlan, sourceFile: SourceFile): PropertySignatureStructure {
     const functionPlan: FunctionTypePlan = {
       type: PlanType.FUNCTION,
       returnType: asPromise(
@@ -48,7 +48,10 @@ export class AxiosGenerator extends Generator {
     };
     return {
       name: apiPlan.operationId,
-      type: getTypeAsString(functionPlan, sourceFile)
+      type: getTypeAsString(functionPlan, sourceFile),
+      ...apiPlan.docs ? {
+        docs: [ { description: apiPlan.docs } ]
+      } : {},
     };
   }
 }
