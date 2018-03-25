@@ -66,3 +66,4 @@ typings/
 .idea
 yarn-error.log
 /generated
+lib

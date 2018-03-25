@@ -11,8 +11,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "ts-node src/index.ts",
     "cli": "ts-node src/cli/index.ts",
+    "build": "tsc",
     "test": "jest",
     "lint": "tslint -p tsconfig.json"
   },
