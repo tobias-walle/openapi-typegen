@@ -16,6 +16,12 @@ export enum ParameterType {
 export interface GenerationPlan {
   definitions: Record<string, InterfacePlan | ArrayPlan>;
   api: Record<string, ApiPlan>;
+  meta: ApiMeta;
+}
+
+export interface ApiMeta {
+  host?: string;
+  baseUrl: string;
 }
 
 export interface ApiPlan {

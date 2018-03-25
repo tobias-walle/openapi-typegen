@@ -12,6 +12,7 @@ import {
 } from './definitions';
 
 export function createApi(options: ApiOptions = {}): Api {
+  options = Object.assign({}, defaultApiOptions, options);
   return keys(apiMapping)
     .reduce((api, operationId) => ({
       ...api,
@@ -23,7 +24,7 @@ function createApiFetchFunction<K extends ApiOperationIds>(
   mappingItem: ApiMappingItem<K>,
   apiOptions: ApiOptions
 ): ApiFetchFunction<K> {
-  const url = joinUrl(apiOptions.baseUrl, mappingItem.url);
+  const url = joinUrl(apiOptions.host, apiOptions.baseUrl, mappingItem.url);
   return (parameters: ApiFetchParameters<K>) => {
     const axiosRequestConfig: AxiosRequestConfig = { url, method: mappingItem.method };
     applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
@@ -44,7 +45,13 @@ export type ApiFetchFunction<K extends ApiOperationIds> =
 
 export interface ApiOptions {
   baseUrl?: string;
+  host?: string;
 }
+
+const defaultApiOptions: ApiOptions = {
+  baseUrl: '/v2',
+  host: 'petstore.swagger.io'
+};
 
 export interface Api {
   /**

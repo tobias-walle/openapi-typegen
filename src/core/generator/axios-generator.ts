@@ -1,18 +1,35 @@
-import { PropertySignatureStructure, SourceFile } from 'ts-simple-ast';
+import { PropertySignatureStructure, SourceFile, VariableDeclarationType } from 'ts-simple-ast';
 import { ApiPlan, FunctionTypePlan, TypePlanType } from '../type-plans';
 import { asPromise, getDefinitionsImport, getTypeAsString } from '../type-plans/utils';
 import { Generator } from '../types/generator';
+import { convertObjectToString } from './utils';
 
 export class AxiosGenerator extends Generator {
   public generate(): void {
     this.setupFile('api-utils.ts', apiUtilsTemplate);
     const createApiSource = this.addDefinitionImports(createApiTemplate);
     const createApiSourceFile = this.setupFile('create-api.ts', createApiSource);
+    this.addDefaultApiOptions(createApiSourceFile);
     this.addApiInterface(createApiSourceFile);
   }
 
   private addDefinitionImports(template: string): string {
     return template.replace('{{imports}}', getDefinitionsImport(this.args.generationPlan.definitions));
+  }
+
+  private addDefaultApiOptions(sourceFile: SourceFile): void {
+    const { generationPlan: { meta }, project } = this.args;
+    sourceFile.addVariableStatement({
+      declarationType: VariableDeclarationType.Const,
+      declarations: [{
+        name: 'defaultApiOptions',
+        type: 'ApiOptions',
+        initializer: convertObjectToString({
+          ...meta.baseUrl ? { baseUrl: meta.baseUrl } : {},
+          ...meta.host ? { host: meta.host } : {},
+        }, project.manipulationSettings.getQuoteType())
+      }]
+    });
   }
 
   private addApiInterface(sourceFile: SourceFile): void {
@@ -48,7 +65,7 @@ export class AxiosGenerator extends Generator {
       name: apiPlan.operationId,
       type: getTypeAsString(functionPlan, sourceFile),
       ...apiPlan.docs ? {
-        docs: [ { description: apiPlan.docs } ]
+        docs: [{ description: apiPlan.docs }]
       } : {},
     };
   }
@@ -114,7 +131,7 @@ export function joinUrl(...parts: (string | undefined)[]): string {
     const partStartWithSeparator = part[0] === '/';
     if (resultEndsWithSeparator && partStartWithSeparator) {
       part = part.substring(1);
-    } else if (!resultEndsWithSeparator && !partStartWithSeparator) {
+    } else if (!resultEndsWithSeparator && !partStartWithSeparator && result.length > 0) {
       part = \`/$\{part}\`;
     }
     result += part;
@@ -131,6 +148,7 @@ import { applyParametersToAxiosRequestConfig, joinUrl, keys } from './api-utils'
 {{imports}}
 
 export function createApi(options: ApiOptions = {}): Api {
+  options = Object.assign({}, defaultApiOptions, options);
   return keys(apiMapping)
     .reduce((api, operationId) => ({
       ...api,
@@ -142,7 +160,7 @@ function createApiFetchFunction<K extends ApiOperationIds>(
   mappingItem: ApiMappingItem<K>,
   apiOptions: ApiOptions
 ): ApiFetchFunction<K> {
-  const url = joinUrl(apiOptions.baseUrl, mappingItem.url);
+  const url = joinUrl(apiOptions.host, apiOptions.baseUrl, mappingItem.url);
   return (parameters: ApiFetchParameters<K>) => {
     const axiosRequestConfig: AxiosRequestConfig = { url, method: mappingItem.method };
     applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
@@ -163,5 +181,6 @@ export type ApiFetchFunction<K extends ApiOperationIds> =
 
 export interface ApiOptions {
   baseUrl?: string;
+  host?: string;
 }
 `.trim();

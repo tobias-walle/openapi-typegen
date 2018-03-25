@@ -36,6 +36,10 @@ export class DefaultParser extends Parser {
     return {
       definitions: this.createDeclarationPlans(),
       api: this.createApiPlans(),
+      meta: {
+        baseUrl: this.args.schema.basePath,
+        host: this.args.schema.host
+      }
     };
   }
 

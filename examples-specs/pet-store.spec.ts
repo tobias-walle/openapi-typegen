@@ -1,8 +1,10 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { ApiFetchParameters, createApi } from '../examples/pet-store/generated/create-api';
+import { createApi } from '../examples/pet-store/generated/create-api';
 import { Pet } from '../examples/pet-store/generated/definitions';
-import { ApiTypes } from './../examples/pet-store/generated/api-types';
+
 jest.mock('axios');
+
+const prefix = 'petstore.swagger.io/v2';
 
 describe('createApi', () => {
   it('should set body parameters', () => {
@@ -14,7 +16,7 @@ describe('createApi', () => {
     const api = createApi();
     api.addPet({ body });
     const expectedAxiosConfig: AxiosRequestConfig = {
-      url: '/pet',
+      url: `${prefix}/pet`,
       method: 'post',
       data: body,
     };
@@ -28,7 +30,7 @@ describe('createApi', () => {
     const api = createApi();
     api.findPetsByStatus({ query });
     const expectedAxiosConfig: AxiosRequestConfig = {
-      url: '/pet/findByStatus',
+      url: `${prefix}/pet/findByStatus`,
       method: 'get',
       params: query,
     };
@@ -42,7 +44,7 @@ describe('createApi', () => {
     const api = createApi();
     api.getPetById({ path });
     const expectedAxiosConfig: AxiosRequestConfig = {
-      url: '/pet/123',
+      url: `${prefix}/pet/123`,
       method: 'get',
     };
 
@@ -62,7 +64,7 @@ describe('createApi', () => {
       formData: expectedFormData,
     });
     const expectedAxiosConfig: AxiosRequestConfig = {
-      url: '/pet/1',
+      url: `${prefix}/pet/1`,
       method: 'post',
       data: expectedFormData,
     };
@@ -86,7 +88,7 @@ describe('createApi', () => {
       },
     });
     const expectedAxiosConfig: AxiosRequestConfig = {
-      url: '/pet/1',
+      url: `${prefix}/pet/1`,
       method: 'post',
       data: expectedFormData,
     };

@@ -57,7 +57,7 @@ export function joinUrl(...parts: (string | undefined)[]): string {
     const partStartWithSeparator = part[0] === '/';
     if (resultEndsWithSeparator && partStartWithSeparator) {
       part = part.substring(1);
-    } else if (!resultEndsWithSeparator && !partStartWithSeparator) {
+    } else if (!resultEndsWithSeparator && !partStartWithSeparator && result.length > 0) {
       part = `/${part}`;
     }
     result += part;
