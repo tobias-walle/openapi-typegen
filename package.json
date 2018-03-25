@@ -1,5 +1,5 @@
 {
-  "name": "swagger-typegen",
+  "name": "openapi-typegen",
   "version": "0.0.0",
   "description": "Generate typescript from swagger files",
   "main": "./lib/core/index.js",
