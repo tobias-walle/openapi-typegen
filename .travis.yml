@@ -1,0 +1,33 @@
+sudo: required
+
+language: node_js
+
+node_js:
+  - "node"
+
+cache:
+  directories:
+    - ~/.npm
+
+notifications:
+  email: true
+
+node_js:
+  - '9'
+  - '8'
+
+before_install:
+  - npm install -g yarn@latest
+
+install:
+  - yarn install
+
+script:
+  - yarn lint
+  - yarn test -- --coverage
+  - yarn build
+  - yarn coveralls
+
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
