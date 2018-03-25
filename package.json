@@ -1,6 +1,6 @@
 {
   "name": "openapi-typegen",
-  "version": "0.0.3-development",
+  "version": "0.0.0-development",
   "description": "Generate typescript from swagger files",
   "main": "./lib/core/index.js",
   "files": [
@@ -20,7 +20,8 @@
     "test": "jest",
     "lint": "tslint -p tsconfig.json",
     "semantic-release": "semantic-release",
-    "coveralls": "cat coverage/lcov.info | node node_modules/.bin/coveralls"
+    "coveralls": "cat coverage/lcov.info | node node_modules/.bin/coveralls",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "devDependencies": {
     "@types/args": "^3.0.0",
@@ -37,7 +38,8 @@
     "ts-jest": "^22.4.1",
     "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
-    "typescript": "^2.8.0-rc"
+    "typescript": "^2.8.0-rc",
+    "travis-deploy-once": "^4.4.1"
   },
   "jest": {
     "transform": {
