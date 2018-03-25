@@ -18,7 +18,8 @@
     "build": "tsc",
     "test": "jest",
     "lint": "tslint -p tsconfig.json",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "coveralls": "cat coverage/lcov.info | node node_modules/.bin/coveralls"
   },
   "devDependencies": {
     "@types/args": "^3.0.0",
