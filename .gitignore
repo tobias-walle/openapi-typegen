@@ -65,4 +65,4 @@ typings/
 ### Custom
 .idea
 yarn-error.log
-generated
+/generated

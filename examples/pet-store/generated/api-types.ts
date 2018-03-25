@@ -1,4 +1,11 @@
-import { ApiResponse, Order, Pet, User } from './definitions';
+import {
+  ApiResponse,
+  Category,
+  Order,
+  Pet,
+  Tag,
+  User
+} from './definitions'
 
 export enum ParameterType {
   BODY = 'body',
@@ -16,9 +23,8 @@ export interface ApiTypes {
       body: Pet;
     };
     responses: {
-      400: never;
-      404: never;
-      405: never;
+      success: undefined;
+      error: undefined;
     };
   };
   addPet: {
@@ -27,7 +33,8 @@ export interface ApiTypes {
       body: Pet;
     };
     responses: {
-      405: never;
+      success: undefined;
+      error: undefined;
     };
   };
   findPetsByStatus: {
@@ -38,8 +45,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: Pet[];
-      400: never;
+      success: Pet[];
+      error: undefined;
     };
   };
   findPetsByTags: {
@@ -50,8 +57,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: Pet[];
-      400: never;
+      success: Pet[];
+      error: undefined;
     };
   };
   getPetById: {
@@ -62,9 +69,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: Pet;
-      400: never;
-      404: never;
+      success: Pet;
+      error: undefined;
     };
   };
   updatePetWithForm: {
@@ -79,7 +85,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      405: never;
+      success: undefined;
+      error: undefined;
     };
   };
   deletePet: {
@@ -93,8 +100,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      400: never;
-      404: never;
+      success: undefined;
+      error: undefined;
     };
   };
   uploadFile: {
@@ -109,14 +116,16 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: ApiResponse;
+      success: ApiResponse;
+      error: undefined;
     };
   };
   getInventory: {
     tag: 'store';
     parameters: {};
     responses: {
-      200: {};
+      success: {};
+      error: undefined;
     };
   };
   placeOrder: {
@@ -125,8 +134,8 @@ export interface ApiTypes {
       body: Order;
     };
     responses: {
-      200: Order;
-      400: never;
+      success: Order;
+      error: undefined;
     };
   };
   getOrderById: {
@@ -137,9 +146,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: Order;
-      400: never;
-      404: never;
+      success: Order;
+      error: undefined;
     };
   };
   deleteOrder: {
@@ -150,8 +158,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      400: never;
-      404: never;
+      success: undefined;
+      error: undefined;
     };
   };
   createUser: {
@@ -160,7 +168,8 @@ export interface ApiTypes {
       body: User;
     };
     responses: {
-      default: never;
+      success: undefined;
+      error: undefined;
     };
   };
   createUsersWithArrayInput: {
@@ -169,7 +178,8 @@ export interface ApiTypes {
       body: User[];
     };
     responses: {
-      default: never;
+      success: undefined;
+      error: undefined;
     };
   };
   createUsersWithListInput: {
@@ -178,7 +188,8 @@ export interface ApiTypes {
       body: User[];
     };
     responses: {
-      default: never;
+      success: undefined;
+      error: undefined;
     };
   };
   loginUser: {
@@ -190,15 +201,16 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: string;
-      400: never;
+      success: string;
+      error: undefined;
     };
   };
   logoutUser: {
     tag: 'user';
     parameters: {};
     responses: {
-      default: never;
+      success: undefined;
+      error: undefined;
     };
   };
   getUserByName: {
@@ -209,9 +221,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      200: User;
-      400: never;
-      404: never;
+      success: User;
+      error: undefined;
     };
   };
   updateUser: {
@@ -223,8 +234,8 @@ export interface ApiTypes {
       body: User;
     };
     responses: {
-      400: never;
-      404: never;
+      success: undefined;
+      error: undefined;
     };
   };
   deleteUser: {
@@ -235,8 +246,8 @@ export interface ApiTypes {
       };
     };
     responses: {
-      400: never;
-      404: never;
+      success: undefined;
+      error: undefined;
     };
   };
 }

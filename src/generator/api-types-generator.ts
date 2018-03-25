@@ -2,16 +2,16 @@ import { SourceFile } from 'ts-simple-ast';
 import {
   ApiParameterPlan,
   ApiPlan,
+  ApiResponsePlan,
   InterfacePlan,
   ParameterType,
   PlanType,
   PropertyPlan,
-  ReferencePlan,
   TypePlan,
 } from '../types/generation-plan';
 import { Generator } from './generator';
 import { getTypeAsString } from './get-type-as-string';
-import { createUnionTypePlanFromStrings, formDataTypePlan } from './type-plan-utils';
+import { createUnionTypePlanFromStrings, formDataTypePlan, undefinedPlan } from './type-plan-utils';
 
 const template = `
 {{imports}}
@@ -25,12 +25,6 @@ export enum ParameterType {
 
 export type ApiOperationIds = keyof ApiTypes;
 `.trim();
-
-const neverPlan: ReferencePlan = {
-  type: PlanType.REFERENCE,
-  to: 'never',
-  libType: true,
-};
 
 export class ApiTypesGenerator extends Generator {
   public generate() {
@@ -85,29 +79,49 @@ export class ApiTypesGenerator extends Generator {
         name: 'responses',
         type: {
           type: PlanType.INTERFACE,
-          properties: apiPlan.responses.map((response) => ({
-            name: response.statusCode,
-            type: response.payloadType || neverPlan,
-            optional: false,
-          })),
+          properties: [
+            {
+              name: 'success',
+              type: this.getResponseTypePlan(apiPlan.responses, filterSuccessfullResponses),
+              optional: false
+            },
+            {
+              name: 'error',
+              type: this.getResponseTypePlan(apiPlan.responses, filterUnsuccessfullResponses),
+              optional: false
+            },
+          ],
         },
         optional: false,
       },
     ];
   }
 
+  private getResponseTypePlan(responses: ApiResponsePlan[], filter: (r: ApiResponsePlan) => boolean): TypePlan {
+    const filteredResponses = responses.filter(filter);
+    if (filteredResponses.length === 0) {
+      const defaultResponse = responses.find((r) => r.statusCode === 'default');
+      return (defaultResponse && defaultResponse.payloadType) || undefinedPlan;
+    }
+    return {
+      type: PlanType.UNION,
+      types: filteredResponses
+        .map((r) => r.payloadType || undefinedPlan)
+    };
+  }
+
   private generateParameterProperties(parameter: ApiParameterPlan): PropertyPlan {
     let type: TypePlan;
     if (parameter.parameterType === ParameterType.BODY) {
       const firstItem = parameter.items[0];
-      type = firstItem.payloadType || neverPlan;
+      type = firstItem.payloadType || undefinedPlan;
     } else {
       type = {
         type: PlanType.INTERFACE,
         properties: parameter.items
           .map(item => ({
               name: item.name,
-              type: item.payloadType || neverPlan,
+              type: item.payloadType || undefinedPlan,
               optional: item.optional,
             }),
           ),
@@ -126,4 +140,13 @@ export class ApiTypesGenerator extends Generator {
       optional: false,
     };
   }
+}
+
+function filterSuccessfullResponses(response: ApiResponsePlan): boolean {
+  return response.statusCode[0] === '2';
+}
+
+function filterUnsuccessfullResponses(response: ApiResponsePlan): boolean {
+  const firstChar = response.statusCode[0];
+  return firstChar !== '2' && response.statusCode !== 'default';
 }

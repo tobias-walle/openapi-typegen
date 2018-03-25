@@ -12,6 +12,12 @@ export const anyTypePlan: ReferencePlan = {
   libType: true,
 };
 
+export const undefinedPlan: ReferencePlan = {
+  type: PlanType.REFERENCE,
+  to: 'undefined',
+  libType: true,
+};
+
 export function createUnionTypePlanFromStrings(strings: string[]): UnionTypePlan {
   return {
     type: PlanType.UNION,

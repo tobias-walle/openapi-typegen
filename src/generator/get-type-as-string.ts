@@ -34,6 +34,6 @@ export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile): str
     case PlanType.REFERENCE:
       return typePlan.to;
     case PlanType.UNION:
-      return typePlan.types.map(t => getTypeAsString(t, sourceFile)).join('|');
+      return [...new Set(typePlan.types)].map(t => getTypeAsString(t, sourceFile)).join('|');
   }
 }
