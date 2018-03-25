@@ -6,7 +6,7 @@
   "bin": {
     "typgen": "./lib/cli/index.js"
   },
-  "repository": "git@github.com:TobiasWalle/swagger-typegen.git",
+  "repository": "git@github.com:TobiasWalle/openapi-typegen.git",
   "author": "Tobias Walle",
   "license": "MIT",
   "private": false,
