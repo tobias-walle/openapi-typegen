@@ -35,7 +35,7 @@ describe('generateTypescript', () => {
   }
 });
 
-const exampleDirectory = path.resolve(__dirname, '..', 'examples');
+const exampleDirectory = path.resolve(__dirname, '..', '..', 'examples');
 
 const petStoreSchema = JSON.parse(
   fs.readFileSync(path.join(exampleDirectory, 'pet-store', 'schema.json'), 'utf-8'),
