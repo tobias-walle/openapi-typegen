@@ -1,23 +1,25 @@
 import { IOpenApiObject } from 'open-api.d.ts';
 import Project, { IndentationText, QuoteType } from 'ts-simple-ast';
 import { DefaultFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
-import { ApiMappingGenerator } from './generator/api-mapping-generator';
-import { ApiTypesGenerator } from './generator/api-types-generator';
-import { AxiosGenerator } from './generator/axios-generator';
-import { DefinitionsGenerator } from './generator/definitions-generator';
-import { GeneratorArguments } from './generator/generator-arguments';
-import { DefaultParser, ParserArguments } from './parser/default-parser';
-import { GenerateTypescriptOptions, InnerGenerateTypescriptOptions } from './types/generate-typescript-options';
+import {
+  ApiMappingGenerator,
+  ApiTypesGenerator,
+  AxiosGenerator,
+  DefinitionsGenerator,
+  GeneratorArguments
+} from './generator';
+import { DefaultParser, ParserArguments } from './parser';
+import { GenerateTypescriptOptions, InnerGenerateTypescriptOptions } from './types';
 
 const defaultOptions: InnerGenerateTypescriptOptions = {
   outputPath: './typegen',
   fileSystemHost: new DefaultFileSystemHost(),
 };
 
-export function generateTypescript(schema: IOpenApiObject, customOptions: GenerateTypescriptOptions): void {
+export function generateTypescript(schema: IOpenApiObject, customOptions?: GenerateTypescriptOptions): void {
   const options: InnerGenerateTypescriptOptions = {
     ...defaultOptions,
-    ...customOptions,
+    ...(customOptions || {}),
   };
 
   const project = new Project(

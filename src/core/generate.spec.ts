@@ -29,7 +29,6 @@ describe('generateTypescript', () => {
     expectFileToMatchExample('create-api.ts');
   });
 
-
   function expectFileToMatchExample(relativePath: string): void {
     expect(virtualFileSystem.readFileSync(relativePath)).toBe(readGeneratedFile(relativePath));
   }

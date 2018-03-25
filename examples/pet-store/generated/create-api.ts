@@ -9,7 +9,7 @@ import {
   Pet,
   Tag,
   User
-} from './definitions'
+} from './definitions';
 
 export type ApiParameters<K extends ApiOperationIds> = ApiTypes[K]['parameters'];
 export type ApiResponses<K extends ApiOperationIds> = ApiTypes[K]['responses'];

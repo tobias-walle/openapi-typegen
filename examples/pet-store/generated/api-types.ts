@@ -5,7 +5,7 @@ import {
   Pet,
   Tag,
   User
-} from './definitions'
+} from './definitions';
 
 export enum ParameterType {
   BODY = 'body',
