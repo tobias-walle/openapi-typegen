@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { apiMapping, ApiMappingItem } from './api-mapping';
 import { ApiOperationIds, ApiTypes } from './api-types';
-import { applyParametersToAxiosRequestConfig, keys } from './api-utils';
+import { applyParametersToAxiosRequestConfig, joinUrl, keys } from './api-utils';
 import {
   ApiResponse,
   Category,
@@ -11,7 +11,28 @@ import {
   User
 } from './definitions';
 
+export function createApi(options: ApiOptions = {}): Api {
+  return keys(apiMapping)
+    .reduce((api, operationId) => ({
+      ...api,
+      [operationId]: createApiFetchFunction(apiMapping[operationId], options),
+    }), {} as Api);
+}
+
+function createApiFetchFunction<K extends ApiOperationIds>(
+  mappingItem: ApiMappingItem<K>,
+  apiOptions: ApiOptions
+): ApiFetchFunction<K> {
+  const url = joinUrl(apiOptions.baseUrl, mappingItem.url);
+  return (parameters: ApiFetchParameters<K>) => {
+    const axiosRequestConfig: AxiosRequestConfig = { url, method: mappingItem.method };
+    applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
+    return axios(axiosRequestConfig);
+  };
+}
+
 export type ApiParameters<K extends ApiOperationIds> = ApiTypes[K]['parameters'];
+
 export type ApiResponses<K extends ApiOperationIds> = ApiTypes[K]['responses'];
 
 export type ApiFetchParameters<K extends ApiOperationIds> = {
@@ -21,23 +42,8 @@ export type ApiFetchParameters<K extends ApiOperationIds> = {
 export type ApiFetchFunction<K extends ApiOperationIds> =
   (parameters: ApiParameters<K>) => Promise<AxiosResponse<ApiResponses<K>['success']>>;
 
-export function createApi(): Api {
-  return keys(apiMapping)
-    .reduce((api, operationId) => ({
-      ...api,
-      [operationId]: createApiFetchFunction(apiMapping[operationId]),
-    }), {} as Api);
-}
-
-function createApiFetchFunction<K extends ApiOperationIds>(mappingItem: ApiMappingItem<K>): ApiFetchFunction<K> {
-  return (parameters: ApiFetchParameters<K>) => {
-    const axiosRequestConfig: AxiosRequestConfig = {
-      url: mappingItem.url,
-      method: mappingItem.method,
-    };
-    applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
-    return axios(axiosRequestConfig);
-  };
+export interface ApiOptions {
+  baseUrl?: string;
 }
 
 export interface Api {

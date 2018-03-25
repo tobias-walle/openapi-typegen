@@ -46,3 +46,21 @@ export function applyParametersToAxiosRequestConfig(
       addPayloadFor[parameterType](config, payload);
     });
 }
+
+export function joinUrl(...parts: (string | undefined)[]): string {
+  let result = '';
+  parts.forEach((part) => {
+    if (part == null || part.length === 0) {
+      return;
+    }
+    const resultEndsWithSeparator = result[result.length - 1] === '/';
+    const partStartWithSeparator = part[0] === '/';
+    if (resultEndsWithSeparator && partStartWithSeparator) {
+      part = part.substring(1);
+    } else if (!resultEndsWithSeparator && !partStartWithSeparator) {
+      part = `/${part}`;
+    }
+    result += part;
+  });
+  return result;
+}

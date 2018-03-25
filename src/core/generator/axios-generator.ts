@@ -103,16 +103,55 @@ export function applyParametersToAxiosRequestConfig(
       addPayloadFor[parameterType](config, payload);
     });
 }
+
+export function joinUrl(...parts: (string | undefined)[]): string {
+  let result = '';
+  parts.forEach((part) => {
+    if (part == null || part.length === 0) {
+      return;
+    }
+    const resultEndsWithSeparator = result[result.length - 1] === '/';
+    const partStartWithSeparator = part[0] === '/';
+    if (resultEndsWithSeparator && partStartWithSeparator) {
+      part = part.substring(1);
+    } else if (!resultEndsWithSeparator && !partStartWithSeparator) {
+      part = \`/$\{part}\`;
+    }
+    result += part;
+  });
+  return result;
+}
 `.trim();
 
 const createApiTemplate = `
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { apiMapping, ApiMappingItem } from './api-mapping';
 import { ApiOperationIds, ApiTypes } from './api-types';
-import { applyParametersToAxiosRequestConfig, keys } from './api-utils';
+import { applyParametersToAxiosRequestConfig, joinUrl, keys } from './api-utils';
 {{imports}}
 
+export function createApi(options: ApiOptions = {}): Api {
+  return keys(apiMapping)
+    .reduce((api, operationId) => ({
+      ...api,
+      [operationId]: createApiFetchFunction(apiMapping[operationId], options),
+    }), {} as Api);
+}
+
+function createApiFetchFunction<K extends ApiOperationIds>(
+  mappingItem: ApiMappingItem<K>,
+  apiOptions: ApiOptions
+): ApiFetchFunction<K> {
+  const url = joinUrl(apiOptions.baseUrl, mappingItem.url);
+  return (parameters: ApiFetchParameters<K>) => {
+    const axiosRequestConfig: AxiosRequestConfig = { url, method: mappingItem.method };
+    applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
+    return axios(axiosRequestConfig);
+  };
+}
+
 export type ApiParameters<K extends ApiOperationIds> = ApiTypes[K]['parameters'];
+
 export type ApiResponses<K extends ApiOperationIds> = ApiTypes[K]['responses'];
 
 export type ApiFetchParameters<K extends ApiOperationIds> = {
@@ -122,22 +161,7 @@ export type ApiFetchParameters<K extends ApiOperationIds> = {
 export type ApiFetchFunction<K extends ApiOperationIds> =
   (parameters: ApiParameters<K>) => Promise<AxiosResponse<ApiResponses<K>['success']>>;
 
-export function createApi(): Api {
-  return keys(apiMapping)
-    .reduce((api, operationId) => ({
-      ...api,
-      [operationId]: createApiFetchFunction(apiMapping[operationId]),
-    }), {} as Api);
-}
-
-function createApiFetchFunction<K extends ApiOperationIds>(mappingItem: ApiMappingItem<K>): ApiFetchFunction<K> {
-  return (parameters: ApiFetchParameters<K>) => {
-    const axiosRequestConfig: AxiosRequestConfig = {
-      url: mappingItem.url,
-      method: mappingItem.method,
-    };
-    applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
-    return axios(axiosRequestConfig);
-  };
+export interface ApiOptions {
+  baseUrl?: string;
 }
 `.trim();
