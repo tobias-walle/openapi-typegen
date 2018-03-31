@@ -32,9 +32,9 @@ export interface Pet {
   id?: number;
   category?: Category;
   name: string;
-  photoUrls: string;
-  tags?: string;
-  status?: string;
+  photoUrls: string[];
+  tags?: Tag[];
+  status?: 'available' | 'pending' | 'sold';
 }
 
 export interface ApiResponse {

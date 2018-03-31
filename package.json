@@ -15,6 +15,7 @@
   "private": false,
   "scripts": {
     "cli": "ts-node src/cli/index.ts",
+    "run-example": "yarn cli --src './examples/pet-store/schema.json' --out ./generated",
     "build": "tsc",
     "prepublish": "run-s lint test build",
     "test": "jest",

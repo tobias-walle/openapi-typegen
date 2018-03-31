@@ -1,5 +1,6 @@
 import { SourceFile } from 'ts-simple-ast';
-import { InterfacePlan, PropertyPlan, TypePlanType } from '../../type-plans';
+import { InterfacePlan, PropertyPlan } from '../../type-plans';
+import { getTypeAsString } from '../../type-plans/utils';
 
 export function addInterface(sourceFile: SourceFile, plan: InterfacePlan, name: string): void {
   const interfaceDeclaration = sourceFile.addInterface({
@@ -10,7 +11,7 @@ export function addInterface(sourceFile: SourceFile, plan: InterfacePlan, name: 
   plan.properties.forEach((propPlan: PropertyPlan) => {
     interfaceDeclaration.addProperty({
       name: propPlan.name,
-      type: propPlan.type.type === TypePlanType.REFERENCE ? propPlan.type.to : 'string',
+      type: getTypeAsString(propPlan.type, sourceFile),
       hasQuestionToken: propPlan.optional,
     });
   });

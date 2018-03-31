@@ -32,7 +32,6 @@ export class DefaultParser extends Parser {
   }
 
   public parse(): GenerationPlan {
-
     return {
       definitions: this.createDeclarationPlans(),
       api: this.createApiPlans(),
