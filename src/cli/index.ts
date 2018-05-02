@@ -40,5 +40,5 @@ function stopSpinnerWithError(): void {
   stopSpinner();
 })().catch(err => {
   stopSpinnerWithError();
-  console.error(err.message.red);
+  console.error(err);
 });
