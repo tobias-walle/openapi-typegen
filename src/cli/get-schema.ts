@@ -11,7 +11,7 @@ export function getSchema(path: string): Promise<IOpenApiObject> {
 }
 
 function isNetworkPath(path: string): boolean {
-  const regExp = /(?:^|[ \t])((https?:\/\/)?(?:localhost|[\w-]+(?:\.[\w-]+)+)(:\d+)?(\/\S*)?)/;
+  const regExp = /https?:\/\//;
   return regExp.test(path);
 }
 
