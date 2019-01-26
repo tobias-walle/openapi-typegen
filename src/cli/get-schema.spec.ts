@@ -32,9 +32,10 @@ jest.mock('http', () => ({
 
 describe('getSchema', () => {
   const networkPaths = [
-    'google.de',
-    'localhost:8000',
-    'http://localhost'
+    'http://localhost',
+    'https://localhost',
+    'https://127.0.0.1',
+    'http://[::1]/test',
   ];
   networkPaths.forEach((path) => {
     it(`should get the schema from the network with path ${path}`, async () => {
