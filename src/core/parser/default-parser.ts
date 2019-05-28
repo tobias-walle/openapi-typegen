@@ -1,4 +1,11 @@
-import { IOpenApiObject, IOperationObject, IParameterObject, IPathsObject, IResponseObject } from 'open-api.d.ts';
+import {
+  OpenAPIObject,
+  OperationObject,
+  ParameterObject,
+  PathsObject,
+  ResponseObject,
+  SchemaObject
+} from 'openapi3-ts';
 import {
   ApiParameterMappingPlan,
   ApiParameterPlan,
@@ -11,10 +18,9 @@ import {
   TypePlan,
   TypePlanType
 } from '../type-plans';
-import { formDataTypePlan, undefinedPlan } from '../type-plans/utils';
+import { anyTypePlan, formDataTypePlan, undefinedPlan } from '../type-plans/utils';
 import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
 import { Parser } from '../types/parser';
-import { SchemaObject } from '../types/schema-object';
 import { ArrayType } from '../types/ts-extentions';
 import { getTypePlanFromSchemaObject, resolveReferenceIfNecessary } from './utils';
 
@@ -22,7 +28,7 @@ const operations = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 
 type Operation = ArrayType<typeof operations>;
 
 export interface ParserArguments {
-  schema: IOpenApiObject;
+  schema: OpenAPIObject;
   options: InnerGenerateTypescriptOptions;
 }
 
@@ -32,12 +38,12 @@ export class DefaultParser extends Parser {
   }
 
   public parse(): GenerationPlan {
+    const firstServer = this.args.schema.servers && this.args.schema.servers[0];
     return {
       definitions: this.createDeclarationPlans(),
       api: this.createApiPlans(),
       meta: {
-        baseUrl: this.args.schema.basePath,
-        host: this.args.schema.host
+        baseUrl: firstServer && firstServer.url
       }
     };
   }
@@ -46,7 +52,7 @@ export class DefaultParser extends Parser {
     const { schema } = this.args;
 
     const declarations: GenerationPlan['definitions'] = {};
-    const definitions: Record<string, SchemaObject> = schema.definitions;
+    const definitions: SchemaObject = resolveReferenceIfNecessary(schema, (schema.components || {}).schemas || {});
     if (definitions) {
       Object.entries(definitions).forEach(([name, schemaObject]) => {
         const typePlan = getTypePlanFromSchemaObject(schemaObject);
@@ -82,7 +88,7 @@ export class DefaultParser extends Parser {
     return apiPlans;
   }
 
-  private mapPaths<T>(map: (pathAndExtension: string, pathObject: IPathsObject) => T): T[] {
+  private mapPaths<T>(map: (pathAndExtension: string, pathObject: PathsObject) => T): T[] {
     const { schema } = this.args;
     return Object.entries(schema.paths)
       .map(([pathAndExtension, pathObject]) =>
@@ -91,8 +97,8 @@ export class DefaultParser extends Parser {
   }
 
   private mapOperations<T>(
-    pathObject: IPathsObject,
-    forEach: (operation: Operation, operationObject: IOperationObject) => T,
+    pathObject: PathsObject,
+    forEach: (operation: Operation, operationObject: OperationObject) => T,
   ): T[] {
     return operations
       .filter(operation => operation in pathObject)
@@ -100,7 +106,7 @@ export class DefaultParser extends Parser {
       .map(([operation, operationObject]) => forEach(operation, operationObject));
   }
 
-  private createApiResponseMapping(operationObject: IOperationObject): ApiResponseMappingPlan {
+  private createApiResponseMapping(operationObject: OperationObject): ApiResponseMappingPlan {
     const responsePlansByStatusCode = this.createApiResponsePlansByStatusCode(operationObject);
     return {
       success: this.getAggregatedResponseTypePlan(responsePlansByStatusCode, filterSuccessfulResponses),
@@ -125,12 +131,10 @@ export class DefaultParser extends Parser {
     };
   }
 
-  private createApiResponsePlansByStatusCode(operationObject: IOperationObject): ApiResponsePlan[] {
+  private createApiResponsePlansByStatusCode(operationObject: OperationObject): ApiResponsePlan[] {
     return this.mapResponses(operationObject, (statusCode, responseObject) => {
-      let schema = (responseObject as any).schema;
-      if (!schema && (responseObject as any).type) {
-        schema = { type: (responseObject as any).type };
-      }
+      const content = responseObject.content && Object.values(responseObject.content)[0];
+      const schema = content && content.schema;
       return {
         statusCode,
         payloadType: schema ? getTypePlanFromSchemaObject(schema) : undefined,
@@ -139,8 +143,8 @@ export class DefaultParser extends Parser {
   }
 
   private createApiParameterMapping(
-    pathObject: IPathsObject,
-    operationObject: IOperationObject
+    pathObject: PathsObject,
+    operationObject: OperationObject
   ): ApiParameterMappingPlan {
     const allPlans = this.createApiParameterPlans(pathObject, operationObject);
     const parameterType: InterfacePlan = {
@@ -153,8 +157,9 @@ export class DefaultParser extends Parser {
     };
   }
 
-  private createApiParameterPlans(pathObject: IPathsObject, operationObject: IOperationObject): ApiParameterPlan[] {
-    const groupedParameters: Partial<Record<ParameterType, IParameterObject[]>> = {};
+  private createApiParameterPlans(pathObject: PathsObject, operationObject: OperationObject): ApiParameterPlan[] {
+    const bodyParameters = this.createApiParameterPlansFromRequestBody(operationObject);
+    const groupedParameters: Partial<Record<ParameterType, ParameterObject[]>> = {};
     this.mapParameters(pathObject, operationObject, (parameterObject) => {
       const parameterType = parameterObject.in as ParameterType;
       groupedParameters[parameterType] = [
@@ -162,15 +167,15 @@ export class DefaultParser extends Parser {
         parameterObject,
       ];
     });
-    return Object.entries(groupedParameters)
+    const otherParamters = Object.entries(groupedParameters)
       .map(([parameterType, values]) => {
         return {
           parameterType: parameterType as ParameterType,
           items: values!.map((parameterObject) => {
-            const items = (parameterObject as any).items;
-            let schema = (parameterObject as any).schema;
-            if (!schema && (parameterObject as any).type) {
-              schema = { type: (parameterObject as any).type };
+            const items = parameterObject.items;
+            let schema = parameterObject.schema;
+            if (!schema && parameterObject.type) {
+              schema = { type: parameterObject.type };
             }
             let payloadType: TypePlan | undefined;
             if (items) {
@@ -190,11 +195,13 @@ export class DefaultParser extends Parser {
           }),
         };
       });
+
+    return [...bodyParameters, ...otherParamters];
   }
 
   private createApiParameterPropertyPlan(parameter: ApiParameterPlan): PropertyPlan {
     let type: TypePlan;
-    if (parameter.parameterType === ParameterType.BODY) {
+    if ([ParameterType.BODY, ParameterType.FORM_DATA].includes(parameter.parameterType)) {
       const firstItem = parameter.items[0];
       type = firstItem.payloadType || undefinedPlan;
     } else {
@@ -208,12 +215,13 @@ export class DefaultParser extends Parser {
             }),
           ),
       };
-      if (parameter.parameterType === ParameterType.FORM_DATA) {
-        type = {
-          type: TypePlanType.UNION,
-          types: [formDataTypePlan, type],
-        };
-      }
+    }
+
+    if (parameter.parameterType === ParameterType.FORM_DATA) {
+      type = {
+        type: TypePlanType.UNION,
+        types: [formDataTypePlan, type],
+      };
     }
 
     return {
@@ -224,25 +232,62 @@ export class DefaultParser extends Parser {
   }
 
   private mapParameters<T>(
-    pathObject: IPathsObject,
-    operationObject: IOperationObject,
-    forEach: (parameterObject: IParameterObject) => T,
+    pathObject: PathsObject,
+    operationObject: OperationObject,
+    forEach: (parameterObject: ParameterObject) => T,
   ): T[] {
     const parameters = [
-      ...(pathObject.paramters || []),
+      ...(pathObject.parameters || []),
       ...(operationObject.parameters || []),
     ];
     return parameters
-      .map((parameterOrReference) => resolveReferenceIfNecessary(this.args.schema, parameterOrReference))
+      .map(
+        (parameterOrReference) => resolveReferenceIfNecessary<ParameterObject>(this.args.schema, parameterOrReference)
+      )
       .map(parameter => forEach(parameter));
   }
 
+  private createApiParameterPlansFromRequestBody(operationObject: OperationObject): ApiParameterPlan[] {
+    const { schema } = this.args;
+    if (!operationObject.requestBody) {
+      return [];
+    }
+    const body = resolveReferenceIfNecessary(schema, operationObject.requestBody);
+    let payloadType: TypePlan = anyTypePlan;
+
+    const contentTypeMapping: Record<string, { type: ParameterType, name: string }> = {
+      'application/json': { type: ParameterType.BODY, name: 'body' },
+      'application/x-www-form-urlencoded': { type: ParameterType.FORM_DATA, name: 'form' },
+      'multipart/form-data': { type: ParameterType.FORM_DATA, name: 'form' }
+    };
+
+    return Object.entries(body.content)
+      .filter(([contentType]) => contentTypeMapping[contentType] != null)
+      .map(([contentType, media]) => {
+        const { name, type } = contentTypeMapping[contentType];
+        payloadType = media.schema ? getTypePlanFromSchemaObject(media.schema) : anyTypePlan;
+        return {
+          parameterType: type,
+          items: [
+            {
+              name,
+              optional: body.required || false,
+              payloadType
+            }
+          ]
+        };
+      });
+  }
+
   private mapResponses<T>(
-    operationObject: IOperationObject,
-    forEach: (responseCode: string, responseObject: IResponseObject) => T,
+    operationObject: OperationObject,
+    forEach: (responseCode: string, responseObject: ResponseObject) => T,
   ): T[] {
     return Object.entries(operationObject.responses)
-      .map(([code, responseOrReference]) => [code, resolveReferenceIfNecessary(this.args.schema, responseOrReference)])
+      .map(([code, responseOrReference]) => [
+        code,
+        resolveReferenceIfNecessary<ResponseObject>(this.args.schema, responseOrReference)
+      ] as const)
       .map(([code, response]) => forEach(code, response));
   }
 }

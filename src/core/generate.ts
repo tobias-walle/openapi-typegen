@@ -1,6 +1,5 @@
-import { IOpenApiObject } from 'open-api.d.ts';
-import Project, { IndentationText, QuoteType } from 'ts-simple-ast';
-import { DefaultFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
+import { OpenAPIObject } from 'openapi3-ts';
+import Project, { IndentationText, QuoteKind } from 'ts-morph';
 import {
   ApiMappingGenerator,
   ApiTypesGenerator,
@@ -13,10 +12,10 @@ import { GenerateTypescriptOptions, InnerGenerateTypescriptOptions } from './typ
 
 const defaultOptions: InnerGenerateTypescriptOptions = {
   outputPath: './typegen',
-  fileSystemHost: new DefaultFileSystemHost(),
+  useVirtualFileSystem: false
 };
 
-export function generateTypescript(schema: IOpenApiObject, customOptions?: GenerateTypescriptOptions): void {
+export function generateTypescript(schema: OpenAPIObject, customOptions?: GenerateTypescriptOptions): Project {
   const options: InnerGenerateTypescriptOptions = {
     ...defaultOptions,
     ...(customOptions || {}),
@@ -28,11 +27,11 @@ export function generateTypescript(schema: IOpenApiObject, customOptions?: Gener
         rootDir: options.outputPath,
       },
       manipulationSettings: {
-        quoteType: QuoteType.Single,
+        quoteKind: QuoteKind.Single,
         indentationText: IndentationText.TwoSpaces,
       },
+      useVirtualFileSystem: options.useVirtualFileSystem
     },
-    options.fileSystemHost,
   );
 
   const parserArgs: ParserArguments = { schema, options };
@@ -51,4 +50,6 @@ export function generateTypescript(schema: IOpenApiObject, customOptions?: Gener
     }));
 
   project.saveSync();
+
+  return project;
 }

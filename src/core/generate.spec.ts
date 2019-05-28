@@ -1,15 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { FileSystemHost } from 'ts-simple-ast';
-import { VirtualFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
+import { FileSystemHost } from 'ts-morph';
 import { generateTypescript } from './generate';
 
 describe('generateTypescript', () => {
   let virtualFileSystem: FileSystemHost;
 
   beforeAll(() => {
-    virtualFileSystem = new VirtualFileSystemHost();
-    generateTypescript(petStoreSchema, { outputPath: '.', fileSystemHost: virtualFileSystem });
+    const project = generateTypescript(petStoreSchema, { outputPath: '.', useVirtualFileSystem: true });
+    virtualFileSystem = project.getFileSystem();
   });
 
   it('should generate the types of the definitions', () => {

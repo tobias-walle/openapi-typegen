@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as http from 'http';
 import { IncomingMessage } from 'http';
-import { IOpenApiObject } from 'open-api.d.ts';
+import { OpenAPIObject } from 'openapi3-ts';
 
-export function getSchema(path: string): Promise<IOpenApiObject> {
+export function getSchema(path: string): Promise<OpenAPIObject> {
   if (isNetworkPath(path)) {
     return getSchemaFromNetwork(path);
   }
@@ -15,8 +15,8 @@ function isNetworkPath(path: string): boolean {
   return regExp.test(path);
 }
 
-function getSchemaFromNetwork(url: string): Promise<IOpenApiObject> {
-  return new Promise<IOpenApiObject>((resolve, reject) => {
+function getSchemaFromNetwork(url: string): Promise<OpenAPIObject> {
+  return new Promise<OpenAPIObject>((resolve, reject) => {
     http.get(url, async (res) => {
       try {
         validateResponse(res);
@@ -56,8 +56,8 @@ function getJsonFromResponse(res: IncomingMessage): Promise<object> {
   });
 }
 
-function getSchemaFromFile(path: string): Promise<IOpenApiObject> {
-  return new Promise<IOpenApiObject>((resolve, reject) => {
+function getSchemaFromFile(path: string): Promise<OpenAPIObject> {
+  return new Promise<OpenAPIObject>((resolve, reject) => {
     fs.readFile(path, 'utf8', (err, data) => {
       if (err) {
         reject(err);

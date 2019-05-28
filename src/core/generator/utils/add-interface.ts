@@ -1,4 +1,4 @@
-import { SourceFile } from 'ts-simple-ast';
+import { SourceFile } from 'ts-morph';
 import { InterfacePlan, PropertyPlan } from '../../type-plans';
 import { getTypeAsString } from '../../type-plans/utils';
 

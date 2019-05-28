@@ -1,4 +1,4 @@
-import { IReferenceObject } from 'open-api.d.ts';
+import { ReferenceObject } from 'openapi3-ts';
 
 export enum JsonSchemaType {
   STRING = 'string',
@@ -7,10 +7,9 @@ export enum JsonSchemaType {
   BOOLEAN = 'boolean',
   OBJECT = 'object',
   ARRAY = 'array',
-  FILE = 'file',
 }
 
-export type ObjectSchemaProperties =  Record<string, SchemaObject | IReferenceObject>;
+export type ObjectSchemaProperties =  Record<string, UnionSchemaObject | ReferenceObject>;
 
 export interface ObjectSchemaObject {
   type: JsonSchemaType.OBJECT;
@@ -25,7 +24,7 @@ export interface StringSchemaObject {
 
 export interface ArraySchemaObject {
   type: JsonSchemaType.ARRAY;
-  items: IReferenceObject | ObjectSchemaObject;
+  items: ReferenceObject | ObjectSchemaObject;
 }
 
 export interface IntegerSchemaObject {
@@ -40,15 +39,10 @@ export interface BooleanSchemaObject {
   type: JsonSchemaType.BOOLEAN;
 }
 
-export interface FileSchemaObject {
-  type: JsonSchemaType.FILE;
-}
-
-export type SchemaObject =
+export type UnionSchemaObject =
   ObjectSchemaObject
   | StringSchemaObject
   | ArraySchemaObject
   | IntegerSchemaObject
   | NumberSchemaObject
-  | BooleanSchemaObject
-  | FileSchemaObject;
+  | BooleanSchemaObject;

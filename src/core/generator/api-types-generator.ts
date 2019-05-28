@@ -1,4 +1,4 @@
-import { SourceFile } from 'ts-simple-ast';
+import { SourceFile } from 'ts-morph';
 import { ApiPlan, InterfacePlan, PropertyPlan, TypePlanType } from '../type-plans';
 import { createUnionTypePlanFromStrings, getDefinitionsImport, getTypeAsString } from '../type-plans/utils';
 import { Generator } from '../types/generator';

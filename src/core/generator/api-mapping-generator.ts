@@ -1,4 +1,4 @@
-import { SourceFile, VariableDeclarationType } from 'ts-simple-ast';
+import { SourceFile, VariableDeclarationKind } from 'ts-morph';
 import { Generator } from '../types';
 import { convertObjectToString } from './utils';
 
@@ -11,7 +11,7 @@ export class ApiMappingGenerator extends Generator {
   private setupApiMappingConstant(sourceFile: SourceFile): void {
     sourceFile.addVariableStatement({
       isExported: true,
-      declarationType: VariableDeclarationType.Const,
+      declarationKind: VariableDeclarationKind.Const,
       declarations: [{
         name: 'apiMapping',
         type: 'ApiMapping',
@@ -37,7 +37,7 @@ export class ApiMappingGenerator extends Generator {
           tags: apiPlan.tags,
         };
       });
-    return convertObjectToString(mapping, project.manipulationSettings.getQuoteType());
+    return convertObjectToString(mapping, project.manipulationSettings.getQuoteKind());
   }
 }
 

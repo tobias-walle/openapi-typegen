@@ -1,10 +1,10 @@
-import { IOpenApiObject, IReferenceObject } from 'open-api.d.ts';
+import { OpenAPIObject, ReferenceObject } from 'openapi3-ts';
 
-export function isReference(item: any): item is IReferenceObject {
+export function isReference(item: any): item is ReferenceObject {
   return item.$ref != null;
 }
 
-export function resolveRef<T>(schema: IOpenApiObject, ref: IReferenceObject): T {
+export function resolveRef<T>(schema: OpenAPIObject, ref: ReferenceObject): T {
   const { $ref } = ref;
   const match = /^#\/(.*)/.exec($ref);
   if (!match) {
@@ -17,10 +17,13 @@ export function resolveRef<T>(schema: IOpenApiObject, ref: IReferenceObject): T 
       throw new Error(`Couldn't find ref "${highlightedRef}"`);
     }
     return root[property];
-  }, schema);
+  }, schema) as any;
 }
 
-export function resolveReferenceIfNecessary<T>(schema: IOpenApiObject, item: T | IReferenceObject): T {
+export function resolveReferenceIfNecessary<T>(
+  schema: OpenAPIObject,
+  item: Exclude<T, undefined | null> | ReferenceObject
+): T {
   if (isReference(item)) {
     return resolveRef<T>(schema, item);
   }

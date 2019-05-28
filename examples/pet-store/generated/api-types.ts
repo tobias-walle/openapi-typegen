@@ -76,12 +76,12 @@ export interface ApiTypes {
   updatePetWithForm: {
     tag: 'pet';
     parameters: {
-      path: {
-        petId: number;
-      };
       formData: FormData | {
         name?: string;
         status?: string;
+      };
+      path: {
+        petId: number;
       };
     };
     responses: {
@@ -107,12 +107,12 @@ export interface ApiTypes {
   uploadFile: {
     tag: 'pet';
     parameters: {
-      path: {
-        petId: number;
-      };
       formData: FormData | {
         additionalMetadata?: string;
         file?: File;
+      };
+      path: {
+        petId: number;
       };
     };
     responses: {
@@ -228,10 +228,10 @@ export interface ApiTypes {
   updateUser: {
     tag: 'user';
     parameters: {
+      body: User;
       path: {
         username: string;
       };
-      body: User;
     };
     responses: {
       success: undefined;

@@ -4,13 +4,13 @@ import { Pet } from '../examples/pet-store/generated/definitions';
 
 jest.mock('axios');
 
-const prefix = 'petstore.swagger.io/v2';
+const prefix = 'http://petstore.swagger.io/v2';
 
 describe('createApi', () => {
   it('should set body parameters', () => {
     const body: Pet = {
       name: 'Miao',
-      photoUrls: '',
+      photoUrls: [],
     };
 
     const api = createApi();

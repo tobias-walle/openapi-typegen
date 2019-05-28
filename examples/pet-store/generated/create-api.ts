@@ -24,7 +24,7 @@ function createApiFetchFunction<K extends ApiOperationIds>(
   mappingItem: ApiMappingItem<K>,
   apiOptions: ApiOptions
 ): ApiFetchFunction<K> {
-  const url = joinUrl(apiOptions.host, apiOptions.baseUrl, mappingItem.url);
+  const url = joinUrl(apiOptions.baseUrl, mappingItem.url);
   return (parameters: ApiFetchParameters<K>) => {
     const axiosRequestConfig: AxiosRequestConfig = { url, method: mappingItem.method };
     applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
@@ -45,12 +45,10 @@ export type ApiFetchFunction<K extends ApiOperationIds> =
 
 export interface ApiOptions {
   baseUrl?: string;
-  host?: string;
 }
 
 const defaultApiOptions: ApiOptions = {
-  baseUrl: '/v2',
-  host: 'petstore.swagger.io'
+  baseUrl: 'http://petstore.swagger.io/v2'
 };
 
 export interface Api {
@@ -94,12 +92,12 @@ export interface Api {
    * Updates a pet in the store with form data
    */
   updatePetWithForm: (parameters: {
-    path: {
-      petId: number;
-    };
     formData: FormData | {
       name?: string;
       status?: string;
+    };
+    path: {
+      petId: number;
     };
   }) => Promise<AxiosResponse<undefined>>;
   /**
@@ -117,12 +115,12 @@ export interface Api {
    * uploads an image
    */
   uploadFile: (parameters: {
-    path: {
-      petId: number;
-    };
     formData: FormData | {
       additionalMetadata?: string;
       file?: File;
+    };
+    path: {
+      petId: number;
     };
   }) => Promise<AxiosResponse<ApiResponse>>;
   /**
@@ -194,10 +192,10 @@ export interface Api {
    * Updated user
    */
   updateUser: (parameters: {
+    body: User;
     path: {
       username: string;
     };
-    body: User;
   }) => Promise<AxiosResponse<undefined>>;
   /**
    * Delete user

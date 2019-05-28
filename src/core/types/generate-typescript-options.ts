@@ -1,8 +1,6 @@
-import { FileSystemHost } from 'ts-simple-ast';
-
 export interface GenerateTypescriptOptions {
   outputPath?: string;
-  fileSystemHost?: FileSystemHost;
+  useVirtualFileSystem?: boolean;
 }
 
 export type InnerGenerateTypescriptOptions = Required<GenerateTypescriptOptions>;

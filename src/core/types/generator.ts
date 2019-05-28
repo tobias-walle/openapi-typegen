@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { SourceFile } from 'ts-simple-ast';
+import { SourceFile } from 'ts-morph';
 import { GeneratorArguments } from '../generator/generator-arguments';
 import { InnerGenerateTypescriptOptions } from './generate-typescript-options';
 
@@ -12,8 +12,9 @@ export abstract class Generator {
   protected setupFile(relativePath: string, text?: string): SourceFile {
     const { project, options } = this.args;
     const filePath = createFilePath(relativePath, options);
-    if (options.fileSystemHost.fileExistsSync(filePath)) {
-      options.fileSystemHost.deleteSync(filePath);
+    const fileSystem = project.getFileSystem();
+    if (fileSystem.fileExistsSync(filePath)) {
+      fileSystem.deleteSync(filePath);
     }
     return project.createSourceFile(filePath, text as string);
   }

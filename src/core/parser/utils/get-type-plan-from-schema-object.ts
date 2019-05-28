@@ -1,7 +1,7 @@
-import { IReferenceObject } from 'open-api.d.ts';
+import { ReferenceObject, SchemaObject } from 'openapi3-ts';
 import { PropertyPlan, TypePlan, TypePlanType } from '../../type-plans';
 import { anyTypePlan, createUnionTypePlanFromStrings } from '../../type-plans/utils';
-import { JsonSchemaType, ObjectSchemaProperties, SchemaObject } from '../../types/schema-object';
+import { JsonSchemaType, ObjectSchemaProperties, UnionSchemaObject } from '../../types/union-schema-object';
 import { isReference } from './reference-utils';
 
 const jsonSchemaTypeToTypescriptTypeName: Record<JsonSchemaType, string> = {
@@ -11,24 +11,30 @@ const jsonSchemaTypeToTypescriptTypeName: Record<JsonSchemaType, string> = {
   boolean: 'boolean',
   object: 'object',
   array: 'any[]',
-  file: 'File',
 };
 
-export function getTypePlanFromSchemaObject(schemaObject: SchemaObject | IReferenceObject): TypePlan {
-  if (isReference(schemaObject)) {
+export function getTypePlanFromSchemaObject(schemaOrReference: SchemaObject | ReferenceObject): TypePlan {
+  if (isReference(schemaOrReference)) {
     return {
       type: TypePlanType.REFERENCE,
-      to: getTypeNameFromReference(schemaObject),
+      to: getTypeNameFromReference(schemaOrReference),
     };
   }
+  const schemaObject = schemaOrReference as UnionSchemaObject;
   switch (schemaObject.type) {
     case JsonSchemaType.STRING:
+      if (schemaObject.format === 'binary') {
+        return {
+          type: TypePlanType.REFERENCE,
+          to: 'File',
+          libType: true
+        };
+      }
       if (hasEnum(schemaObject)) {
         return createUnionTypePlanFromStrings(schemaObject.enum);
       }
     case JsonSchemaType.INTEGER:
     case JsonSchemaType.NUMBER:
-    case JsonSchemaType.FILE:
     case JsonSchemaType.BOOLEAN:
       return {
         type: TypePlanType.REFERENCE,
@@ -72,7 +78,7 @@ function getPropertyPlansFromObjectSchemaProperties(
     : [];
 }
 
-function getTypeNameFromReference(reference: IReferenceObject): string {
+function getTypeNameFromReference(reference: ReferenceObject): string {
   const match = /\/([^\/]+)$/.exec(reference.$ref);
   if (!match) {
     throw new Error('Invalid reference');

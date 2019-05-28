@@ -1,4 +1,4 @@
-import { PropertySignatureStructure, SourceFile, VariableDeclarationType } from 'ts-simple-ast';
+import { PropertySignatureStructure, SourceFile, VariableDeclarationKind } from 'ts-morph';
 import { ApiPlan, FunctionTypePlan, TypePlanType } from '../type-plans';
 import { asPromise, getDefinitionsImport, getTypeAsString } from '../type-plans/utils';
 import { Generator } from '../types/generator';
@@ -20,14 +20,13 @@ export class AxiosGenerator extends Generator {
   private addDefaultApiOptions(sourceFile: SourceFile): void {
     const { generationPlan: { meta }, project } = this.args;
     sourceFile.addVariableStatement({
-      declarationType: VariableDeclarationType.Const,
+      declarationKind: VariableDeclarationKind.Const,
       declarations: [{
         name: 'defaultApiOptions',
         type: 'ApiOptions',
         initializer: convertObjectToString({
           ...meta.baseUrl ? { baseUrl: meta.baseUrl } : {},
-          ...meta.host ? { host: meta.host } : {},
-        }, project.manipulationSettings.getQuoteType())
+        }, project.manipulationSettings.getQuoteKind())
       }]
     });
   }
@@ -160,7 +159,7 @@ function createApiFetchFunction<K extends ApiOperationIds>(
   mappingItem: ApiMappingItem<K>,
   apiOptions: ApiOptions
 ): ApiFetchFunction<K> {
-  const url = joinUrl(apiOptions.host, apiOptions.baseUrl, mappingItem.url);
+  const url = joinUrl(apiOptions.baseUrl, mappingItem.url);
   return (parameters: ApiFetchParameters<K>) => {
     const axiosRequestConfig: AxiosRequestConfig = { url, method: mappingItem.method };
     applyParametersToAxiosRequestConfig(axiosRequestConfig, parameters);
@@ -181,6 +180,5 @@ export type ApiFetchFunction<K extends ApiOperationIds> =
 
 export interface ApiOptions {
   baseUrl?: string;
-  host?: string;
 }
 `.trim();

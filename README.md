@@ -5,6 +5,7 @@
 
 Generates typescript code to access your api based on the openapi (swagger) json files.
 The generated files are completely typesafe.
+This library supports only openapi schemas with the version 3.
 
 ## Installation
 With npm
@@ -31,8 +32,7 @@ $ typegen --src http://localhost:8080/v2/api-docs --out ./generated
 import { createApi } from './generated/create-api';
 
 const api = createApi({
-  host: '/', // Override the host, the default is the value from the schema
-  baseUrl: 'api' // Override the base url, default is the base url from the schema
+  baseUrl: 'http://localhost:8000/api' // Override the base url the default is the url from the first server in the schema
 });
 
 // Now you can use the api as the following. The function names will be generated

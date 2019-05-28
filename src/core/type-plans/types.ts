@@ -20,8 +20,7 @@ export interface GenerationPlan {
 }
 
 export interface ApiMeta {
-  host?: string;
-  baseUrl: string;
+  baseUrl?: string;
 }
 
 export interface ApiPlan {

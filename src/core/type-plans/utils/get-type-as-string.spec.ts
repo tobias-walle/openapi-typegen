@@ -1,5 +1,4 @@
-import { default as Project, SourceFile } from 'ts-simple-ast';
-import { VirtualFileSystemHost } from 'ts-simple-ast/dist-scripts/src/fileSystem';
+import { default as Project, SourceFile } from 'ts-morph';
 import { ArrayPlan, InterfacePlan, ReferencePlan, TypePlanType } from '../types';
 import { getTypeAsString } from './get-type-as-string';
 
@@ -7,7 +6,7 @@ describe('getTypeAsString', () => {
   let sourceFile: SourceFile;
 
   beforeEach(() => {
-    sourceFile = new Project({}, new VirtualFileSystemHost()).createSourceFile('temp.ts');
+    sourceFile = new Project({ useVirtualFileSystem: true }).createSourceFile('temp.ts');
   });
 
   afterEach(() => {

@@ -1,4 +1,4 @@
-import { SourceFile, SyntaxKind } from 'ts-simple-ast';
+import { SourceFile, SyntaxKind } from 'ts-morph';
 import { PropertyPlan, TypePlanType } from '../index';
 import { TypePlan } from '../types';
 
@@ -42,7 +42,7 @@ export function getTypeAsString(typePlan: TypePlan, sourceFile: SourceFile): str
       return [...new Set(typePlan.types)].map(t => getTypeAsString(t, sourceFile)).join('|');
     case TypePlanType.FUNCTION:
       const parameters = typePlan.arguments
-        .map(({name, type}) => `${name}: ${getTypeAsString(type, sourceFile)}`)
+        .map(({ name, type }) => `${name}: ${getTypeAsString(type, sourceFile)}`)
         .join(', ');
       const returnType = getTypeAsString(typePlan.returnType, sourceFile);
       return `(${parameters}) => ${returnType}`;

@@ -1,4 +1,4 @@
-import Project from 'ts-simple-ast';
+import Project from 'ts-morph';
 import { GenerationPlan } from '../type-plans';
 import { InnerGenerateTypescriptOptions } from '../types/generate-typescript-options';
 

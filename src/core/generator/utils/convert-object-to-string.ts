@@ -1,6 +1,6 @@
-import { QuoteType } from 'ts-simple-ast';
+import { QuoteKind } from 'ts-morph';
 
-export function convertObjectToString(object: Record<string, any>, quoteType: QuoteType): string {
+export function convertObjectToString(object: Record<string, any>, quoteType: QuoteKind): string {
   const properties = Object.getOwnPropertyNames(object)
     .map((name) => {
       const value = getStringRepresentation(object[name], quoteType);
@@ -9,7 +9,7 @@ export function convertObjectToString(object: Record<string, any>, quoteType: Qu
   return `{\n${properties}\n}`;
 }
 
-function getStringRepresentation(value: any, quoteType: QuoteType): string {
+function getStringRepresentation(value: any, quoteType: QuoteKind): string {
   switch (typeof value) {
     case 'object':
       if (value instanceof Array) {

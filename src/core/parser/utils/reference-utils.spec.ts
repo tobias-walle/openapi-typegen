@@ -1,4 +1,4 @@
-import { IOpenApiObject, IReferenceObject } from 'open-api.d.ts';
+import { OpenAPIObject, ReferenceObject } from 'openapi3-ts';
 import { isReference, resolveRef, resolveReferenceIfNecessary } from './reference-utils';
 
 describe('isReference', () => {
@@ -13,12 +13,12 @@ describe('resolveRef', () => {
     const expectedResult = {
       a: 1,
     };
-    const mockSchema: Partial<IOpenApiObject> = {
+    const mockSchema: Partial<OpenAPIObject> = {
       definitions: {
         Test: expectedResult,
       },
     };
-    const reference: IReferenceObject = {
+    const reference: ReferenceObject = {
       $ref: '#/definitions/Test',
     };
 
@@ -26,10 +26,10 @@ describe('resolveRef', () => {
   });
 
   it('should throw an error on reference in another file', () => {
-    const mockSchema: Partial<IOpenApiObject> = {
+    const mockSchema: Partial<OpenAPIObject> = {
       definitions: {},
     };
-    const reference: IReferenceObject = {
+    const reference: ReferenceObject = {
       $ref: 'otherFile/#/definitions/Test',
     };
 
@@ -37,10 +37,10 @@ describe('resolveRef', () => {
   });
 
   it('should throw an error if reference is invalid', () => {
-    const mockSchema: Partial<IOpenApiObject> = {
+    const mockSchema: Partial<OpenAPIObject> = {
       definitions: {},
     };
-    const reference: IReferenceObject = {
+    const reference: ReferenceObject = {
       $ref: '#/definitions/Test',
     };
 
@@ -51,12 +51,12 @@ describe('resolveRef', () => {
 describe('resolveReferenceIfNecessary', () => {
   it('should resolve a reference if the given object is a reference', () => {
     const expectedResult = { a: 1 };
-    const mockSchema: Partial<IOpenApiObject> = {
+    const mockSchema: Partial<OpenAPIObject> = {
       definitions: {
         Test: expectedResult,
       },
     };
-    const reference: IReferenceObject = {
+    const reference: ReferenceObject = {
       $ref: '#/definitions/Test',
     };
 
@@ -65,7 +65,7 @@ describe('resolveReferenceIfNecessary', () => {
 
   it('should just return the object if it is not a reference', () => {
     const expectedResult = { a: 1 };
-    const mockSchema: Partial<IOpenApiObject> = {};
+    const mockSchema: Partial<OpenAPIObject> = {};
 
     expect(resolveReferenceIfNecessary(mockSchema as any, expectedResult)).toBe(expectedResult);
   });
