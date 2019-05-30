@@ -1,4 +1,4 @@
-import { default as Project, SourceFile } from 'ts-morph';
+import { Project, SourceFile } from 'ts-morph';
 import { ArrayPlan, InterfacePlan, ReferencePlan, TypePlanType } from '../types';
 import { getTypeAsString } from './get-type-as-string';
 

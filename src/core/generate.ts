@@ -1,5 +1,5 @@
 import { OpenAPIObject } from 'openapi3-ts';
-import Project, { IndentationText, QuoteKind } from 'ts-morph';
+import { IndentationText, Project, QuoteKind } from 'ts-morph';
 import {
   ApiMappingGenerator,
   ApiTypesGenerator,

@@ -1,4 +1,4 @@
-import { PropertySignatureStructure, SourceFile, VariableDeclarationKind } from 'ts-morph';
+import { PropertySignatureStructure, SourceFile, StructureKind, VariableDeclarationKind } from 'ts-morph';
 import { ApiPlan, FunctionTypePlan, TypePlanType } from '../type-plans';
 import { asPromise, getDefinitionsImport, getTypeAsString } from '../type-plans/utils';
 import { Generator } from '../types/generator';
@@ -61,6 +61,7 @@ export class AxiosGenerator extends Generator {
       }]
     };
     return {
+      kind: StructureKind.PropertySignature,
       name: apiPlan.operationId,
       type: getTypeAsString(functionPlan, sourceFile),
       ...apiPlan.docs ? {
