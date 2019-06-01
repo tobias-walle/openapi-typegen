@@ -42,11 +42,12 @@ export class ApiMappingGenerator extends Generator {
 }
 
 const template = `
+import { Method } from 'axios';
 import { ApiOperationIds, ApiTypes } from './api-types';
 
 export interface ApiMappingItem<key extends ApiOperationIds> {
   url: string;
-  method: string;
+  method: Method;
   tags: Array<ApiTypes[key]['tag']>;
 }
 
