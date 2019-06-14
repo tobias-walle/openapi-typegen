@@ -41,7 +41,7 @@ export interface ApiTypes {
     tag: 'pet';
     parameters: {
       query: {
-        status: Array<'available' | 'pending' | 'sold'>;
+        status?: Array<'available' | 'pending' | 'sold'>;
       };
     };
     responses: {

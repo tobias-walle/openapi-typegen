@@ -190,7 +190,7 @@ export class DefaultParser extends Parser {
             return {
               payloadType,
               name: parameterObject.name,
-              optional: parameterObject.required === false,
+              optional: parameterObject.required !== true
             };
           }),
         };
@@ -271,7 +271,7 @@ export class DefaultParser extends Parser {
           items: [
             {
               name,
-              optional: body.required || false,
+              optional: body.required !== true,
               payloadType
             }
           ]

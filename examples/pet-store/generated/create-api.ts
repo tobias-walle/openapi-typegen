@@ -69,7 +69,7 @@ export interface Api {
    */
   findPetsByStatus: (parameters: {
     query: {
-      status: Array<'available' | 'pending' | 'sold'>;
+      status?: Array<'available' | 'pending' | 'sold'>;
     };
   }) => Promise<AxiosResponse<Pet[]>>;
   /**
